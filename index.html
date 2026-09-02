@@ -1,0 +1,1430 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>田中电子宠物</title>
+  <link rel="preload" as="image" href="assets/tanaka-stand.webp">
+  <link rel="preload" as="image" href="assets/xiuzhen.webp">
+  <link rel="preload" as="image" href="assets/xiaohe.webp">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #221d19;
+      --soft: #76645a;
+      --paper: #fff9ed;
+      --panel: rgba(255, 255, 250, .88);
+      --line: #2b241f;
+      --orange: #ff8d35;
+      --green: #8dcf3f;
+      --teal: #72c9c1;
+      --rose: #ef7772;
+      --blue: #92b9e8;
+      --yellow: #f8cf5e;
+      --shadow: 0 18px 48px rgba(89, 61, 39, .16);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body { margin: 0; min-height: 100%; }
+
+    body {
+      min-height: 100svh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.42) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,.38) 1px, transparent 1px),
+        linear-gradient(150deg, #fff3d7 0%, #ffeadb 42%, #e8f6ee 100%);
+      background-size: 28px 28px, 28px 28px, auto;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      overflow-x: hidden;
+      touch-action: manipulation;
+    }
+
+    button { border: 0; font: inherit; cursor: pointer; }
+
+    .app {
+      width: min(100%, 462px);
+      min-height: 100svh;
+      margin: 0 auto;
+      padding: max(12px, env(safe-area-inset-top)) 12px max(14px, env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .eyebrow {
+      margin: 0 0 2px;
+      color: #7a5c4d;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 8.2vw, 39px);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .sound {
+      min-width: 74px;
+      height: 42px;
+      border-radius: 12px;
+      background: #fff;
+      color: #5d514a;
+      font-size: 13px;
+      font-weight: 950;
+      box-shadow: 0 8px 20px rgba(85, 60, 42, .12);
+    }
+
+    .sound.ready { background: var(--ink); color: #fff; }
+
+    .top-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .stat {
+      min-height: 54px;
+      border: 2px solid rgba(43, 36, 31, .12);
+      border-radius: 10px;
+      background: var(--panel);
+      padding: 7px 9px;
+      box-shadow: 0 8px 20px rgba(82, 54, 35, .07);
+    }
+
+    .stat span {
+      display: block;
+      color: #7f695f;
+      font-size: 11px;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 1px;
+      font-size: 20px;
+      font-weight: 1000;
+      letter-spacing: 0;
+    }
+
+    .stage {
+      position: relative;
+      height: clamp(390px, 56svh, 540px);
+      min-height: 390px;
+      border: 2px solid rgba(43, 36, 31, .16);
+      border-radius: 16px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.42), rgba(255, 252, 244, .9)),
+        linear-gradient(90deg, transparent 0 32%, rgba(248, 207, 94, .22) 32% 34%, transparent 34% 66%, rgba(248, 207, 94, .22) 66% 68%, transparent 68%);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      touch-action: none;
+      isolation: isolate;
+    }
+
+    .stage::after {
+      content: "";
+      position: absolute;
+      left: 64px;
+      right: 54px;
+      bottom: 68px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(98, 65, 42, .2);
+      filter: blur(2px);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .zone {
+      position: absolute;
+      z-index: 2;
+      display: grid;
+      place-items: center;
+      min-width: 86px;
+      min-height: 58px;
+      border: 3px solid var(--line);
+      border-radius: 12px;
+      background: #fffef7;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 1000;
+      box-shadow: 5px 5px 0 rgba(43, 36, 31, .11);
+      transform: rotate(var(--tilt));
+      transition: transform .18s ease, background .18s ease;
+      pointer-events: none;
+    }
+
+    .zone.hot {
+      background: #fff1a8;
+      transform: rotate(var(--tilt)) scale(1.08);
+    }
+
+    .zone.work { left: 16px; top: 18px; --tilt: -4deg; background: #e9f3ff; }
+    .zone.xiuzhen { right: 14px; top: 24px; --tilt: 3deg; background: #ffe5e3; }
+    .zone.bag { left: 16px; bottom: 30px; --tilt: -7deg; background: #f0d294; min-height: 74px; }
+    .zone.bed { right: 16px; bottom: 30px; --tilt: 5deg; background: #dff2eb; min-height: 74px; }
+
+    .zone.bag::before {
+      content: "";
+      position: absolute;
+      top: -22px;
+      width: 34px;
+      height: 23px;
+      border: 4px solid var(--line);
+      border-bottom: 0;
+      border-radius: 22px 22px 0 0;
+    }
+
+    .path-dot {
+      position: absolute;
+      z-index: 1;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(43, 36, 31, .28);
+      pointer-events: none;
+    }
+
+    .friend {
+      position: absolute;
+      z-index: 6;
+      object-fit: contain;
+      opacity: 0;
+      pointer-events: none;
+      filter: drop-shadow(0 12px 10px rgba(61, 44, 32, .16));
+    }
+
+    .friend.xiuzhen {
+      left: -132px;
+      top: 42%;
+      width: min(34vw, 142px);
+    }
+
+    .friend.xiaohe {
+      right: -170px;
+      top: 42%;
+      width: min(42vw, 176px);
+    }
+
+    .friend.xiuzhen.show { animation: xiuzhen-pop 2.45s ease both; }
+    .friend.xiaohe.show { animation: xiaohe-pass 1.35s ease-in-out both; }
+
+    .pet {
+      position: absolute;
+      left: 50%;
+      top: 48%;
+      z-index: 5;
+      width: min(42vw, 166px);
+      height: min(94vw, 380px);
+      padding: 0;
+      background: transparent;
+      translate: -50% -50%;
+      touch-action: none;
+      user-select: none;
+      cursor: grab;
+      transition: transform .2s cubic-bezier(.2,.9,.2,1.18), filter .18s ease;
+    }
+
+    .pet.pose-stand,
+    .pet.pose-smile {
+      width: min(42vw, 166px);
+      height: min(94vw, 380px);
+    }
+
+    .pet.pose-work {
+      top: 52%;
+      width: min(58vw, 236px);
+      height: min(54vw, 220px);
+    }
+
+    .pet.pose-dead,
+    .pet.pose-flat,
+    .pet.pose-phone {
+      top: 58%;
+      width: min(68vw, 270px);
+      height: min(42vw, 168px);
+    }
+
+    .pet img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      filter: saturate(1.05) contrast(1.04) drop-shadow(0 12px 11px rgba(80, 48, 30, .2));
+      transform-origin: 50% 82%;
+      transition: transform .18s ease, filter .18s ease;
+    }
+
+    .pet.held {
+      cursor: grabbing;
+      filter: drop-shadow(0 26px 24px rgba(80, 48, 30, .22));
+      transition: none;
+    }
+
+    .pet.held img { animation: held-wobble .42s ease-in-out infinite; }
+    .pet.pat img { animation: micro-smile .58s ease-in-out 2; }
+    .pet.poke img { animation: recoil .32s ease-in-out both; }
+    .pet.drop img { animation: squash .36s ease-out both; }
+    .pet.baggy img { animation: bag-dive .62s ease-out both; }
+    .pet.fly img { animation: abducted .72s ease-in-out both; }
+    .pet.sleep img { animation: lie-flat .72s ease-out both; }
+    .pet.pose-phone.sleep img,
+    .pet.pose-flat.sleep img,
+    .pet.pose-dead.sleep img { animation: low-battery 1.8s ease-in-out infinite; }
+    .pet.reward img { animation: reluctant-joy .68s ease-in-out both; }
+    .pet.shake img { animation: shakeout .44s ease-in-out both; }
+
+    .mood-mark {
+      position: absolute;
+      left: 50%;
+      top: 8px;
+      z-index: 8;
+      min-width: 42px;
+      border: 3px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      padding: 4px 9px;
+      font-size: 13px;
+      font-weight: 1000;
+      transform: translateX(-50%) rotate(-4deg);
+      box-shadow: 4px 4px 0 rgba(43, 36, 31, .1);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .mood-mark.show { animation: mark-pop .9s ease both; }
+
+    .bubble {
+      margin: 0;
+      min-height: 58px;
+      border: 3px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255,255,255,.96);
+      padding: 10px 12px;
+      font-size: 15px;
+      line-height: 1.38;
+      font-weight: 900;
+      box-shadow: 6px 6px 0 rgba(43, 36, 31, .1);
+    }
+
+    .sticker {
+      position: absolute;
+      left: 50%;
+      top: 68px;
+      z-index: 8;
+      width: min(78vw, 258px);
+      border: 3px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 10px 12px;
+      transform: translateX(-50%) rotate(-3deg);
+      box-shadow: 8px 8px 0 rgba(43, 36, 31, .12);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .sticker.show { animation: sticker-card 2.15s ease both; }
+
+    .sticker.with-image {
+      width: min(82vw, 292px);
+    }
+
+    .sticker-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+      color: #755a4b;
+      font-size: 12px;
+      font-weight: 1000;
+    }
+
+    .sticker-img {
+      display: none;
+      width: 100%;
+      max-height: 156px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: #fffdf7;
+      margin: 3px 0 7px;
+    }
+
+    .sticker.with-image .sticker-img {
+      display: block;
+    }
+
+    .sticker-face {
+      width: 27px;
+      height: 27px;
+      border: 3px solid var(--line);
+      border-radius: 50%;
+      background: var(--orange);
+      flex: 0 0 auto;
+      position: relative;
+    }
+
+    .sticker-face::before,
+    .sticker-face::after {
+      content: "";
+      position: absolute;
+      top: 10px;
+      width: 4px;
+      height: 4px;
+      background: var(--line);
+      border-radius: 50%;
+    }
+
+    .sticker-face::before { left: 7px; }
+    .sticker-face::after { right: 7px; }
+
+    .sticker-text {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.28;
+      font-weight: 1000;
+    }
+
+    .dock {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .tool {
+      min-height: 52px;
+      border: 2px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 13px;
+      line-height: 1.12;
+      font-weight: 1000;
+      box-shadow: 4px 4px 0 rgba(43, 36, 31, .12);
+      transition: transform .14s ease, box-shadow .14s ease, background .14s ease;
+    }
+
+    .tool:active {
+      transform: translate(3px, 3px);
+      box-shadow: 1px 1px 0 rgba(43, 36, 31, .16);
+    }
+
+    .tool.primary { background: #ffe47f; }
+
+    .panel {
+      border: 2px solid rgba(43, 36, 31, .14);
+      border-radius: 12px;
+      background: var(--panel);
+      padding: 10px;
+      box-shadow: 0 8px 20px rgba(82, 54, 35, .07);
+    }
+
+    .panel-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 1000;
+    }
+
+    .panel-title small {
+      color: var(--soft);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .missions {
+      display: grid;
+      gap: 6px;
+    }
+
+    .mission {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+      border-radius: 9px;
+      background: #fff;
+      padding: 7px 9px;
+      color: #4f433d;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .mission.done {
+      background: #e9f7e7;
+      color: #315f39;
+    }
+
+    .mission b {
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .book {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 9px;
+    }
+
+    .badge {
+      min-height: 34px;
+      border-radius: 9px;
+      background: #f2eadc;
+      color: #928174;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 5px 6px;
+      font-size: 11px;
+      line-height: 1.15;
+      font-weight: 950;
+    }
+
+    .badge.on {
+      background: #211d19;
+      color: #fff;
+    }
+
+    .coupon {
+      display: none;
+      margin-top: 9px;
+      border: 3px dashed var(--line);
+      border-radius: 12px;
+      background: #fff6c8;
+      padding: 9px 10px;
+      font-size: 13px;
+      line-height: 1.35;
+      font-weight: 950;
+      transform: rotate(-1deg);
+    }
+
+    .coupon.show {
+      display: block;
+      animation: coupon-pop .28s ease-out both;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: max(12px, env(safe-area-inset-top));
+      z-index: 20;
+      max-width: min(88vw, 390px);
+      border: 3px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px 13px;
+      font-size: 14px;
+      font-weight: 1000;
+      box-shadow: 6px 6px 0 rgba(43, 36, 31, .13);
+      transform: translateX(-50%) translateY(-130%);
+      pointer-events: none;
+    }
+
+    .toast.show { animation: toast 2.3s ease both; }
+
+    .float {
+      position: fixed;
+      left: var(--x);
+      top: var(--y);
+      z-index: 30;
+      color: #c3482e;
+      font-size: 17px;
+      font-weight: 1000;
+      text-shadow: 0 2px 0 #fff;
+      pointer-events: none;
+      animation: float-up .86s ease-out both;
+    }
+
+    @keyframes held-wobble {
+      0%, 100% { transform: rotate(-4deg) translateY(-1px); }
+      50% { transform: rotate(5deg) translateY(2px); }
+    }
+
+    @keyframes micro-smile {
+      0%, 100% { transform: scale(1); filter: saturate(1.05) contrast(1.04) drop-shadow(0 12px 11px rgba(80,48,30,.2)); }
+      50% { transform: scale(1.035) translateY(-4px); filter: saturate(1.18) contrast(1.06) drop-shadow(0 15px 12px rgba(80,48,30,.23)); }
+    }
+
+    @keyframes recoil {
+      0%, 100% { transform: translateX(0) rotate(0); }
+      33% { transform: translateX(-8px) rotate(-4deg); }
+      66% { transform: translateX(7px) rotate(3deg); }
+    }
+
+    @keyframes squash {
+      0% { transform: scale(1.02, .94) translateY(9px); }
+      60% { transform: scale(.97, 1.04) translateY(-5px); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes bag-dive {
+      0% { transform: translateY(0) rotate(0) scale(1); opacity: 1; }
+      56% { transform: translate(-34px, 54px) rotate(-18deg) scale(.72); opacity: .8; }
+      100% { transform: translate(0, 0) rotate(0) scale(1); opacity: 1; }
+    }
+
+    @keyframes abducted {
+      0%, 100% { transform: translate(0, 0) rotate(0); }
+      45% { transform: translate(58px, -78px) rotate(22deg) scale(.78); }
+    }
+
+    @keyframes lie-flat {
+      0% { transform: rotate(0) translateY(0); }
+      58% { transform: rotate(82deg) translate(34px, 28px) scale(.94); }
+      100% { transform: rotate(0) translateY(0); }
+    }
+
+    @keyframes low-battery {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50% { transform: translateY(3px) rotate(1deg); }
+    }
+
+    @keyframes reluctant-joy {
+      0%, 100% { transform: translateY(0) rotate(0); }
+      35% { transform: translateY(-11px) rotate(-3deg); }
+      70% { transform: translateY(-3px) rotate(3deg); }
+    }
+
+    @keyframes shakeout {
+      0%, 100% { transform: translateX(0) rotate(0); }
+      20% { transform: translateX(-11px) rotate(-7deg); }
+      40% { transform: translateX(11px) rotate(7deg); }
+      60% { transform: translateX(-8px) rotate(-5deg); }
+      80% { transform: translateX(8px) rotate(5deg); }
+    }
+
+    @keyframes xiuzhen-pop {
+      0%, 100% { opacity: 0; transform: translateX(0) translateY(12px) rotate(-8deg) scale(.86); }
+      18%, 78% { opacity: 1; transform: translateX(132px) translateY(0) rotate(3deg) scale(1); }
+    }
+
+    @keyframes xiaohe-pass {
+      0% { opacity: 0; transform: translateX(0) rotate(0); }
+      14% { opacity: 1; }
+      52% { opacity: 1; transform: translateX(-260px) rotate(-4deg); }
+      100% { opacity: 0; transform: translateX(-430px) rotate(-2deg); }
+    }
+
+    @keyframes sticker-card {
+      0%, 100% { opacity: 0; transform: translateX(-50%) translateY(8px) rotate(-3deg) scale(.92); }
+      12%, 78% { opacity: 1; transform: translateX(-50%) translateY(0) rotate(-3deg) scale(1); }
+    }
+
+    @keyframes mark-pop {
+      0%, 100% { opacity: 0; transform: translateX(-50%) translateY(8px) rotate(-4deg) scale(.82); }
+      15%, 75% { opacity: 1; transform: translateX(-50%) translateY(0) rotate(-4deg) scale(1); }
+    }
+
+    @keyframes coupon-pop {
+      from { opacity: 0; transform: translateY(8px) rotate(-1deg) scale(.96); }
+      to { opacity: 1; transform: translateY(0) rotate(-1deg) scale(1); }
+    }
+
+    @keyframes toast {
+      0%, 100% { transform: translateX(-50%) translateY(-130%); }
+      12%, 84% { transform: translateX(-50%) translateY(0); }
+    }
+
+    @keyframes float-up {
+      0% { opacity: 0; transform: translate(-50%, 0) scale(.86) rotate(-4deg); }
+      18% { opacity: 1; }
+      100% { opacity: 0; transform: translate(-50%, -82px) scale(1.13) rotate(8deg); }
+    }
+
+    @media (max-height: 760px) {
+      .stage { height: 380px; min-height: 380px; }
+      .pet.pose-stand,
+      .pet.pose-smile { width: min(40vw, 148px); height: min(92vw, 340px); }
+      .pet.pose-work { width: min(56vw, 218px); height: min(50vw, 194px); }
+      .pet.pose-dead,
+      .pet.pose-flat,
+      .pet.pose-phone { width: min(66vw, 248px); height: min(39vw, 148px); }
+      .bubble { min-height: 52px; font-size: 14px; }
+      .zone { min-width: 78px; min-height: 52px; font-size: 12px; }
+      .zone.bag, .zone.bed { min-height: 65px; }
+      .tool { min-height: 48px; font-size: 12px; }
+      .panel { padding: 8px; }
+      .book { display: none; }
+    }
+
+    @media (max-width: 350px) {
+      .dock { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .stage { height: 360px; min-height: 360px; }
+      .pet.pose-stand,
+      .pet.pose-smile { width: 132px; height: 303px; }
+      .pet.pose-work { width: 205px; height: 180px; }
+      .pet.pose-dead,
+      .pet.pose-flat,
+      .pet.pose-phone { width: 232px; height: 140px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div>
+        <p class="eyebrow">LiPU FRiENDS 田中私享小玩具</p>
+        <h1>田中电子宠物</h1>
+      </div>
+      <button class="sound" id="soundButton" type="button">开声音</button>
+    </header>
+
+    <section class="top-row" aria-label="今日状态">
+      <div class="stat"><span>萝卜币</span><strong id="coinText">0</strong></div>
+      <div class="stat"><span>丧味回收</span><strong id="reliefText">0</strong></div>
+      <div class="stat"><span>贴纸</span><strong id="bookText">0/6</strong></div>
+    </section>
+
+    <section class="stage" id="stage" aria-label="田中互动区">
+      <span class="zone work" data-zone="work">工位</span>
+      <span class="zone xiuzhen" data-zone="xiuzhen">秀珍旁边</span>
+      <span class="zone bag" data-zone="bag">超市袋</span>
+      <span class="zone bed" data-zone="bed">被窝</span>
+      <span class="path-dot" style="left:37%;top:31%"></span>
+      <span class="path-dot" style="left:54%;top:26%"></span>
+      <span class="path-dot" style="left:63%;top:43%"></span>
+      <span class="path-dot" style="left:35%;top:67%"></span>
+      <img class="friend xiuzhen" id="xiuzhen" src="assets/xiuzhen.webp" alt="秀珍" draggable="false" />
+      <img class="friend xiaohe" id="xiaohe" src="assets/xiaohe.webp" alt="小河" draggable="false" />
+
+      <button class="pet pose-stand" id="pet" type="button" aria-label="张田中">
+        <img id="tanakaImage" src="assets/tanaka-stand.webp" alt="张田中" draggable="false" />
+      </button>
+
+      <span class="mood-mark" id="moodMark">唉</span>
+
+      <div class="sticker" id="sticker" aria-live="polite">
+        <div class="sticker-head"><span class="sticker-face"></span><span>田中表情包</span></div>
+        <img class="sticker-img" id="stickerImg" src="" alt="" draggable="false" />
+        <p class="sticker-text" id="stickerText">我没事。括号里是假的。</p>
+      </div>
+    </section>
+
+    <p class="bubble" id="bubble">田中今天不营业。你可以把它从工位拎走。</p>
+
+    <div class="dock">
+      <button class="tool primary" type="button" data-action="xiuzhen">叫秀珍</button>
+      <button class="tool" type="button" data-action="pelican">小河叼走</button>
+      <button class="tool" type="button" data-action="work">回工位</button>
+      <button class="tool" type="button" data-action="dead">装死</button>
+      <button class="tool" type="button" data-action="meme">表情包</button>
+      <button class="tool" type="button" data-action="coupon">现实券</button>
+    </div>
+
+    <section class="panel">
+      <div class="panel-title">
+        <span>今晚关照清单</span>
+        <small id="taskText">0/4</small>
+      </div>
+      <div class="missions" id="missions"></div>
+      <div class="book" id="book"></div>
+      <div class="coupon" id="coupon"></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast">奖励到账</div>
+
+  <script>
+    const pet = document.getElementById('pet');
+    const tanakaImage = document.getElementById('tanakaImage');
+    const stage = document.getElementById('stage');
+    const xiuzhen = document.getElementById('xiuzhen');
+    const xiaohe = document.getElementById('xiaohe');
+    const bubble = document.getElementById('bubble');
+    const sticker = document.getElementById('sticker');
+    const stickerImg = document.getElementById('stickerImg');
+    const stickerText = document.getElementById('stickerText');
+    const moodMark = document.getElementById('moodMark');
+    const soundButton = document.getElementById('soundButton');
+    const coinText = document.getElementById('coinText');
+    const reliefText = document.getElementById('reliefText');
+    const bookText = document.getElementById('bookText');
+    const taskText = document.getElementById('taskText');
+    const missionsEl = document.getElementById('missions');
+    const bookEl = document.getElementById('book');
+    const couponEl = document.getElementById('coupon');
+    const toast = document.getElementById('toast');
+    const zones = Array.from(document.querySelectorAll('.zone'));
+
+    const poses = {
+      stand: 'assets/tanaka-stand.webp',
+      dead: 'assets/tanaka-dead.webp',
+      work: 'assets/tanaka-work.webp',
+      smile: 'assets/tanaka-smile.webp',
+      flat: 'assets/tanaka-flat.webp',
+      phone: 'assets/tanaka-phone.webp'
+    };
+
+    const poseFallback = ['stand', 'dead', 'work', 'smile', 'flat', 'phone'];
+
+    poseFallback.forEach((name) => {
+      const image = new Image();
+      image.src = poses[name];
+    });
+
+    const lines = {
+      idle: [
+        '田中今天不营业。你可以把它从工位拎走。',
+        '25岁了，快乐不用宏大，能少烦五分钟就算赢。',
+        '田中的脸写着：世界先别叫我，我还没加载完。'
+      ],
+      pat: [
+        '摸头到账。叶子没有变精神，但它承认被照顾到了。',
+        '田中嘴角没有上扬，只是内心少塌了一小块。',
+        '成年人也可以被摸摸头，尤其是上班没睡醒的时候。'
+      ],
+      poke: [
+        '戳到了。田中发出“不要让我做决定”的气场。',
+        '别戳，萝卜皮是橙色的，心是下班色的。',
+        '它看起来没反应，其实正在默默反击生活。'
+      ],
+      foot: [
+        '短腿已经带田中上过班了，今晚拒绝加班。',
+        '火柴腿存活确认。再走一步就申请躺平。',
+        '脚脚今天的 KPI：站着。已完成。'
+      ],
+      held: [
+        '田中被拎起来了。暂时逃离工位和无聊人生。',
+        '悬空中。离职幻想加一，但明天还是要打卡。',
+        '轻点，它只是一根现实到发蔫的萝卜。'
+      ],
+      drop: [
+        '放下了。也把今天的烦放下一点点。',
+        '落地成功。成年人的日常就是被放下再站起来。',
+        '田中表示：刚才那一下，比团建有用。'
+      ],
+      work: [
+        '放回工位。田中已进入低功耗营业模式。',
+        '工位吸走一格灵魂，但萝卜币照给。',
+        '它没有哭，它只是想静音工作。'
+      ],
+      xiuzhen: [
+        '秀珍接住田中：今天已经够努力了，别再审判自己。',
+        '田中只跟秀珍玩。被懂的人接住，丧味少很多。',
+        '秀珍认证：这根萝卜值得被好好对待。'
+      ],
+      bag: [
+        '躲进超市袋。暂停营业，禁止世界打扰。',
+        '超市逃生成功。先保命，再考虑积极。',
+        '田中宣布：袋内休息也是一种正经安排。'
+      ],
+      bed: [
+        '钻进被窝。今晚最低目标：把自己养回来。',
+        '田中平躺。不是摆烂，是系统维护。',
+        '被窝收留成功，现实暂时退到后台。'
+      ],
+      pelican: [
+        '小河叼走田中。问题没有解决，但终于有点离谱了。',
+        '学步鞋哒哒哒经过，田中被命运含住三秒。',
+        '被小河叼走，比继续无聊强一点。'
+      ],
+      shake: [
+        '左右晃动成功：把脑子里的破事摇掉一片。',
+        '田中被摇出表情包碎片。精神状态更加稳定地离谱。',
+        '好，今日丧味已经摇匀，可以回收。'
+      ],
+      dead: [
+        '田中假装死了。今晚不处理人生大题。',
+        '就当田中死了。它只是需要安静地横一会儿。',
+        '装死有效：世界没有消失，但声音小了一点。'
+      ],
+      meme: [
+        '表情包已生成：我没事，括号里是假的。',
+        '表情包已生成：人在工位，心在超市袋。',
+        '表情包已生成：别叫醒我，我正在维护系统。'
+      ],
+      reward: [
+        '贴纸解锁。生活仍然离谱，但你赢了一小局。',
+        '奖励到账。田中不开心，但它愿意再活五分钟。',
+        '图鉴亮了。今晚可以把这个当作一点点实际快乐。'
+      ],
+      coupon: [
+        '现实券已开出。不是画饼，是今晚能立刻用的小奖励。',
+        '这张券有效期：今天下班到睡前。',
+        '田中批准：今晚只做小事，不做宏大人生规划。'
+      ]
+    };
+
+    const memes = [
+      '我没事。括号里是假的。',
+      '今日工位存活成功。',
+      '人在上班，魂在下班。',
+      '先吃饭，人生暂停。',
+      '正在努力做一根正常萝卜。',
+      '电量低，但可爱还在。',
+      '不想努力，但已经到岗。',
+      '下班后禁止反刍破事。',
+      '别叼我，我自己会走。',
+      '秀珍认证：值得被照顾。'
+    ];
+
+    const memeCards = [
+      { text: '田中已倒下：今天不处理人生大题。', image: poses.dead, pose: 'dead' },
+      { text: '工位田中：人在上班，心在超市袋。', image: poses.work, pose: 'work' },
+      { text: '田中假笑：我很好，只是加载失败。', image: poses.smile, pose: 'smile' },
+      { text: '平躺田中：不是摆烂，是系统维护。', image: poses.flat, pose: 'flat' },
+      { text: '抱手机田中：下班后只想横着活。', image: poses.phone, pose: 'phone' },
+      { text: '秀珍认证：这根萝卜值得被好好对待。', image: 'assets/meme-xiuzhen.webp', pose: 'smile' }
+    ];
+
+    const badges = [
+      '今日存活章',
+      '超市袋房卡',
+      '秀珍关照贴',
+      '小河快递单',
+      '装死许可证',
+      '下班自由券'
+    ];
+
+    const realCoupons = [
+      '今晚现实券：下班先喝一杯热水，别马上回消息。',
+      '今晚现实券：允许点一个想吃的加菜，不用解释。',
+      '今晚现实券：洗完澡直接躺十分钟，手机也可以躺旁边。',
+      '今晚现实券：今天不复盘自己，错题明天再说。',
+      '今晚现实券：领取一次异地抱抱语音，时长不少于30秒。',
+      '今晚现实券：睡前只完成一个小目标，剩下的交给明天。'
+    ];
+
+    const missions = [
+      { id: 'lift', label: '把田中拎离工位 2 次', target: 2, reward: 4 },
+      { id: 'xiuzhen', label: '让田中被秀珍接住 1 次', target: 1, reward: 5 },
+      { id: 'bag', label: '把田中藏进超市袋 1 次', target: 1, reward: 5 },
+      { id: 'meme', label: '摇出或抽到表情包 2 张', target: 2, reward: 6 }
+    ];
+
+    const defaults = {
+      coins: 0,
+      relief: 0,
+      unlocked: 0,
+      counts: {
+        lift: 0,
+        pat: 0,
+        poke: 0,
+        foot: 0,
+        work: 0,
+        xiuzhen: 0,
+        bag: 0,
+        bed: 0,
+        pelican: 0,
+        shake: 0,
+        dead: 0,
+        meme: 0,
+        coupon: 0
+      }
+    };
+
+    const state = typeof structuredClone === 'function' ? structuredClone(defaults) : JSON.parse(JSON.stringify(defaults));
+    const saved = localStorage.getItem('tanaka-pet-state-v5');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        Object.assign(state, parsed);
+        state.counts = Object.assign({}, defaults.counts, parsed.counts || {});
+      } catch {}
+    }
+
+    let audio = null;
+    let soundReady = false;
+    let lineCursor = 0;
+    let memeCursor = 0;
+    let poseTimer = 0;
+    let dragging = false;
+    let holding = false;
+    let moved = false;
+    let holdTimer = 0;
+    let lastSign = 0;
+    let shakeScore = 0;
+    let dragStartTime = 0;
+    let lastTapTime = 0;
+    let activePointerId = null;
+    let startPoint = { x: 0, y: 0 };
+    let offset = { x: 0, y: 0 };
+
+    function save() {
+      localStorage.setItem('tanaka-pet-state-v5', JSON.stringify(state));
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function nextLine(name) {
+      const pool = lines[name] || lines.idle;
+      lineCursor += 1;
+      return pool[lineCursor % pool.length];
+    }
+
+    function completedTasks() {
+      return missions.filter((mission) => (state.counts[mission.id] || 0) >= mission.target).length;
+    }
+
+    function render() {
+      coinText.textContent = state.coins;
+      reliefText.textContent = state.relief;
+      bookText.textContent = state.unlocked + '/' + badges.length;
+      taskText.textContent = completedTasks() + '/' + missions.length;
+      renderMissions();
+      renderBook();
+      save();
+    }
+
+    function renderMissions() {
+      missionsEl.innerHTML = missions.map((mission) => {
+        const count = Math.min(state.counts[mission.id] || 0, mission.target);
+        const done = count >= mission.target;
+        return '<div class="mission ' + (done ? 'done' : '') + '">' +
+          '<span>' + (done ? '已完成：' : '') + mission.label + '</span>' +
+          '<b>' + count + '/' + mission.target + '</b>' +
+        '</div>';
+      }).join('');
+    }
+
+    function renderBook() {
+      bookEl.innerHTML = badges.map((badge, index) => {
+        const on = index < state.unlocked;
+        return '<div class="badge ' + (on ? 'on' : '') + '">' + (on ? badge : '未解锁') + '</div>';
+      }).join('');
+    }
+
+    function initSound() {
+      if (!audio) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        audio = new AudioContextClass();
+      }
+      if (audio.state === 'suspended') audio.resume();
+      soundReady = true;
+      soundButton.classList.add('ready');
+      soundButton.textContent = '声音开';
+    }
+
+    function note(freq, end, type, len, vol, delay) {
+      if (!audio) return;
+      const now = audio.currentTime + (delay || 0);
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      const filter = audio.createBiquadFilter();
+      osc.type = type;
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1300, now);
+      osc.frequency.setValueAtTime(freq, now);
+      osc.frequency.exponentialRampToValueAtTime(Math.max(40, end), now + len);
+      gain.gain.setValueAtTime(.0001, now);
+      gain.gain.exponentialRampToValueAtTime(vol, now + .018);
+      gain.gain.exponentialRampToValueAtTime(.0001, now + len);
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(audio.destination);
+      osc.start(now);
+      osc.stop(now + len + .04);
+    }
+
+    function noise(len, vol, delay) {
+      if (!audio) return;
+      const now = audio.currentTime + (delay || 0);
+      const buffer = audio.createBuffer(1, Math.max(1, audio.sampleRate * len), audio.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+      const source = audio.createBufferSource();
+      const gain = audio.createGain();
+      const filter = audio.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(780, now);
+      gain.gain.setValueAtTime(vol, now);
+      gain.gain.exponentialRampToValueAtTime(.0001, now + len);
+      source.buffer = buffer;
+      source.connect(filter);
+      filter.connect(gain);
+      gain.connect(audio.destination);
+      source.start(now);
+    }
+
+    function play(kind) {
+      initSound();
+      const sounds = {
+        lift: () => { note(360, 520, 'sine', .12, .055); note(480, 640, 'sine', .11, .035, .07); },
+        drop: () => { noise(.08, .035); note(180, 118, 'triangle', .16, .06, .02); },
+        pat: () => { note(720, 620, 'sine', .08, .045); note(850, 760, 'sine', .09, .036, .08); },
+        poke: () => { note(230, 190, 'square', .06, .032); noise(.035, .018, .02); },
+        foot: () => { note(540, 280, 'square', .055, .035); note(540, 280, 'square', .055, .032, .1); },
+        work: () => { note(210, 160, 'sawtooth', .16, .032); },
+        xiuzhen: () => { note(620, 780, 'sine', .12, .045); note(780, 980, 'sine', .14, .035, .1); },
+        bag: () => { noise(.12, .035); note(300, 220, 'triangle', .14, .04, .04); },
+        bed: () => { note(420, 300, 'sine', .36, .038); note(340, 260, 'sine', .38, .025, .16); },
+        pelican: () => { note(740, 260, 'sawtooth', .11, .032); note(510, 260, 'square', .055, .03, .1); note(510, 260, 'square', .055, .03, .19); note(510, 260, 'square', .055, .03, .28); },
+        shake: () => { note(760, 940, 'square', .06, .033); note(920, 700, 'square', .07, .032, .07); note(1080, 1320, 'sine', .09, .03, .15); },
+        dead: () => { note(300, 180, 'sine', .52, .04); },
+        meme: () => { noise(.055, .04); note(860, 1280, 'sine', .07, .04, .04); note(1180, 920, 'sine', .09, .034, .12); },
+        coin: () => { note(880, 1180, 'sine', .08, .052); note(1320, 980, 'sine', .12, .042, .08); },
+        coupon: () => { note(520, 760, 'triangle', .08, .044); note(760, 1120, 'triangle', .1, .036, .09); }
+      };
+      (sounds[kind] || sounds.pat)();
+    }
+
+    function vibrate(ms) {
+      if ('vibrate' in navigator) navigator.vibrate(ms);
+    }
+
+    function count(id, amount) {
+      state.counts[id] = (state.counts[id] || 0) + (amount || 1);
+    }
+
+    function floatText(text, x, y) {
+      const item = document.createElement('span');
+      item.className = 'float';
+      item.textContent = text;
+      item.style.setProperty('--x', x + 'px');
+      item.style.setProperty('--y', y + 'px');
+      document.body.appendChild(item);
+      item.addEventListener('animationend', () => item.remove());
+    }
+
+    function mark(text) {
+      moodMark.textContent = text;
+      moodMark.classList.remove('show');
+      void moodMark.offsetWidth;
+      moodMark.classList.add('show');
+    }
+
+    function setPose(name, hold) {
+      const pose = poses[name] ? name : 'stand';
+      tanakaImage.src = poses[pose];
+      pet.classList.remove('pose-stand', 'pose-dead', 'pose-work', 'pose-smile', 'pose-flat', 'pose-phone');
+      pet.classList.add('pose-' + pose);
+      window.clearTimeout(poseTimer);
+      if (!hold && pose !== 'stand') {
+        poseTimer = window.setTimeout(() => {
+          if (!dragging) {
+            tanakaImage.src = poses.stand;
+            pet.className = 'pet pose-stand';
+          }
+        }, 4200);
+      }
+    }
+
+    function showFriend(which) {
+      const friend = which === 'xiuzhen' ? xiuzhen : xiaohe;
+      friend.classList.remove('show');
+      void friend.offsetWidth;
+      friend.classList.add('show');
+    }
+
+    function showSticker(card) {
+      const data = typeof card === 'string'
+        ? { text: card, image: '', pose: '' }
+        : card || { text: memes[memeCursor % memes.length], image: '', pose: '' };
+      stickerText.textContent = data.text || memes[memeCursor % memes.length];
+      if (data.image) {
+        stickerImg.src = data.image;
+        stickerImg.alt = data.text || '田中表情包';
+        sticker.classList.add('with-image');
+      } else {
+        stickerImg.removeAttribute('src');
+        stickerImg.alt = '';
+        sticker.classList.remove('with-image');
+      }
+      sticker.classList.remove('show');
+      void sticker.offsetWidth;
+      sticker.classList.add('show');
+    }
+
+    function toastReward(text) {
+      toast.textContent = text;
+      toast.classList.remove('show');
+      void toast.offsetWidth;
+      toast.classList.add('show');
+    }
+
+    function setMood(className, text, mood, pose, holdPose) {
+      const nextPose = pose || 'stand';
+      pet.className = 'pet pose-' + nextPose;
+      void pet.offsetWidth;
+      pet.className = 'pet pose-' + nextPose + ' ' + className;
+      setPose(nextPose, holdPose);
+      bubble.textContent = text || nextLine(className);
+      if (mood) mark(mood);
+    }
+
+    function unlockRewards() {
+      const unlockAt = [5, 12, 21, 33, 48, 66];
+      while (state.unlocked < badges.length && state.coins >= unlockAt[state.unlocked]) {
+        state.unlocked += 1;
+        play('coin');
+        setMood('reward', nextLine('reward'), '+1', 'smile');
+        toastReward('解锁：' + badges[state.unlocked - 1]);
+      }
+    }
+
+    function missionBonus() {
+      missions.forEach((mission) => {
+        const key = 'bonus_' + mission.id;
+        if ((state.counts[mission.id] || 0) >= mission.target && !state[key]) {
+          state[key] = true;
+          state.coins += mission.reward;
+          state.relief = clamp(state.relief + mission.reward, 0, 999);
+          unlockRewards();
+          play('coin');
+          toastReward('关照清单完成：+' + mission.reward + ' 萝卜币');
+        }
+      });
+    }
+
+    function addReward(id, coins, relief, x, y) {
+      if (id) count(id);
+      state.coins += coins;
+      state.relief = clamp(state.relief + relief, 0, 999);
+      if (x && y) floatText('+' + coins + '币', x, y);
+      unlockRewards();
+      missionBonus();
+      render();
+    }
+
+    function openCoupon(force) {
+      if (!force && state.coins < 4) {
+        couponEl.classList.add('show');
+        couponEl.textContent = '现实券还差一点萝卜币。先把田中从工位拎走，或者抽张表情包。';
+        play('poke');
+        return;
+      }
+      if (!force) state.coins = Math.max(0, state.coins - 4);
+      count('coupon');
+      const text = realCoupons[state.counts.coupon % realCoupons.length];
+      couponEl.textContent = text;
+      couponEl.classList.add('show');
+      setMood('reward', nextLine('coupon'), '券', 'phone');
+      play('coupon');
+      toastReward('现实券到账');
+      render();
+    }
+
+    function actionZone(zoneName, x, y) {
+      const zoneActions = {
+        work: { cls: 'drop', sound: 'work', coin: 1, relief: 2, mood: '唉', pose: 'work' },
+        xiuzhen: { cls: 'pat', sound: 'xiuzhen', coin: 3, relief: 8, mood: '接住', pose: 'smile', friend: 'xiuzhen' },
+        bag: { cls: 'baggy', sound: 'bag', coin: 3, relief: 7, mood: '袋', pose: 'dead' },
+        bed: { cls: 'sleep', sound: 'bed', coin: 3, relief: 8, mood: '躺', pose: 'phone' }
+      };
+      const action = zoneActions[zoneName] || zoneActions.work;
+      if (action.friend) showFriend(action.friend);
+      addReward(zoneName, action.coin, action.relief, x, y);
+      setMood(action.cls, nextLine(zoneName), action.mood, action.pose);
+      play(action.sound);
+      vibrate(24);
+    }
+
+    function callPelican(x, y) {
+      showFriend('xiaohe');
+      addReward('pelican', 2, 6, x, y);
+      setMood('fly', nextLine('pelican'), '叼', 'flat');
+      play('pelican');
+      vibrate(30);
+    }
+
+    function drawMeme(x, y) {
+      memeCursor += 1;
+      const card = memeCards[memeCursor % memeCards.length];
+      count('meme');
+      state.coins += 3;
+      state.relief = clamp(state.relief + 7, 0, 999);
+      unlockRewards();
+      missionBonus();
+      showSticker(card);
+      setMood('reward', nextLine('meme'), '拍', card.pose || 'smile');
+      play('meme');
+      vibrate(18);
+      if (x && y) floatText('+3币', x, y);
+      render();
+    }
+
+    function playDead(x, y) {
+      addReward('dead', 2, 6, x, y);
+      setMood('sleep', nextLine('dead'), '躺', 'dead');
+      play('dead');
+      vibrate(22);
+    }
+
+    function tapPet(event) {
+      const now = performance.now();
+      const doubleTap = now - lastTapTime < 330;
+      lastTapTime = now;
+      if (doubleTap) {
+        playDead(event.clientX, event.clientY);
+        return;
+      }
+
+      const rect = pet.getBoundingClientRect();
+      const localY = event.clientY - rect.top;
+      if (localY < rect.height * .32) {
+        addReward('pat', 1, 4, event.clientX, event.clientY);
+        setMood('pat', nextLine('pat'), '摸', 'smile');
+        play('pat');
+        vibrate(15);
+        return;
+      }
+      if (localY > rect.height * .74) {
+        addReward('foot', 1, 3, event.clientX, event.clientY);
+        setMood('poke', nextLine('foot'), '短腿', 'flat');
+        play('foot');
+        vibrate(12);
+        return;
+      }
+      addReward('poke', 1, 3, event.clientX, event.clientY);
+      setMood('poke', nextLine('poke'), '别戳', 'dead');
+      play('poke');
+      vibrate(10);
+    }
+
+    function zoneAt(x, y) {
+      return zones.find((zone) => {
+        const rect = zone.getBoundingClientRect();
+        return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+      });
+    }
+
+    function setPetTransform(x, y, active) {
+      pet.style.transform = 'translate(' + x + 'px, ' + y + 'px) rotate(' + (active ? x / 18 : 0) + 'deg)';
+    }
+
+    function beginHold() {
+      if (!dragging || holding) return;
+      holding = true;
+      setMood('held', nextLine('held'), '拎', 'stand', true);
+      setPetTransform(0, -18, true);
+      play('lift');
+      vibrate(14);
+    }
+
+    pet.addEventListener('pointerdown', (event) => {
+      activePointerId = event.pointerId;
+      const rect = pet.getBoundingClientRect();
+      offset = {
+        x: event.clientX - rect.left - rect.width / 2,
+        y: event.clientY - rect.top - rect.height / 2
+      };
+      startPoint = { x: event.clientX, y: event.clientY };
+      dragStartTime = performance.now();
+      dragging = true;
+      holding = false;
+      moved = false;
+      shakeScore = 0;
+      lastSign = 0;
+      pet.setPointerCapture(event.pointerId);
+      holdTimer = window.setTimeout(beginHold, 140);
+    });
+
+    pet.addEventListener('pointermove', (event) => {
+      if (!dragging || event.pointerId !== activePointerId) return;
+      const dxStart = event.clientX - startPoint.x;
+      const dyStart = event.clientY - startPoint.y;
+      if (Math.hypot(dxStart, dyStart) > 8) {
+        moved = true;
+        beginHold();
+      }
+      if (!holding) return;
+
+      const rect = stage.getBoundingClientRect();
+      const x = event.clientX - rect.left - rect.width / 2 - offset.x;
+      const y = event.clientY - rect.top - rect.height / 2 - offset.y;
+      setPetTransform(clamp(x, -136, 136), clamp(y, -150, 116), true);
+
+      const hotZone = zoneAt(event.clientX, event.clientY);
+      zones.forEach((zone) => zone.classList.toggle('hot', zone === hotZone));
+
+      const sign = Math.abs(dxStart) > 18 ? Math.sign(dxStart) : 0;
+      if (sign && lastSign && sign !== lastSign) shakeScore += 1;
+      if (sign) lastSign = sign;
+
+      if (shakeScore >= 4) {
+        shakeScore = 0;
+        addReward('shake', 2, 6, event.clientX, event.clientY);
+        const card = memeCards[state.counts.shake % memeCards.length];
+        setMood('shake', nextLine('shake'), '晃', card.pose || 'flat');
+        showSticker(card);
+        play('shake');
+        vibrate(30);
+      }
+    });
+
+    function release(event) {
+      if (!dragging || event.pointerId !== activePointerId) return;
+      window.clearTimeout(holdTimer);
+      if (pet.hasPointerCapture(event.pointerId)) pet.releasePointerCapture(event.pointerId);
+      dragging = false;
+      activePointerId = null;
+      zones.forEach((zone) => zone.classList.remove('hot'));
+
+      const elapsed = Math.max(1, performance.now() - dragStartTime);
+      const distance = Math.hypot(event.clientX - startPoint.x, event.clientY - startPoint.y);
+      const quick = distance / elapsed > .75;
+
+      if (!holding || (!moved && distance < 12)) {
+        setPetTransform(0, 0, false);
+        tapPet(event);
+        return;
+      }
+
+      const targetZone = zoneAt(event.clientX, event.clientY);
+      setPetTransform(0, 0, false);
+      addReward('lift', 1, 3, event.clientX, event.clientY);
+
+      if (targetZone) {
+        actionZone(targetZone.dataset.zone, event.clientX, event.clientY);
+        return;
+      }
+
+      if (quick) {
+        callPelican(event.clientX, event.clientY);
+        return;
+      }
+
+      setMood('drop', nextLine('drop'), '落');
+      play('drop');
+      vibrate(22);
+    }
+
+    pet.addEventListener('pointerup', release);
+    pet.addEventListener('pointercancel', release);
+
+    soundButton.addEventListener('click', () => {
+      initSound();
+      play('xiuzhen');
+      bubble.textContent = '声音打开了。田中仍然很丧，但现在丧得有声。';
+    });
+
+    document.querySelectorAll('[data-action]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const action = button.dataset.action;
+        if (action === 'xiuzhen') actionZone('xiuzhen', window.innerWidth / 2, window.innerHeight / 2);
+        if (action === 'pelican') callPelican(window.innerWidth / 2, window.innerHeight / 2);
+        if (action === 'work') actionZone('work', window.innerWidth / 2, window.innerHeight / 2);
+        if (action === 'dead') playDead(window.innerWidth / 2, window.innerHeight / 2);
+        if (action === 'meme') drawMeme(window.innerWidth / 2, window.innerHeight / 2);
+        if (action === 'coupon') openCoupon(false);
+      });
+    });
+
+    window.setInterval(() => {
+      if (dragging) return;
+      setMood('sleep', nextLine('idle'), '唉', Math.random() > .55 ? 'phone' : 'flat');
+    }, 45000);
+
+    render();
+  </script>
+</body>
+</html>
