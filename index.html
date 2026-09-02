@@ -512,11 +512,11 @@
 
     .pet {
       left: 50%;
-      bottom: 42px;
-      width: min(58vw, 230px);
-      max-width: 230px;
-      min-width: 168px;
-      aspect-ratio: 260 / 320;
+      bottom: 30px;
+      width: min(46vw, 190px);
+      max-width: 190px;
+      min-width: 138px;
+      aspect-ratio: 200 / 420;
       z-index: 7;
       touch-action: none;
       user-select: none;
@@ -567,13 +567,13 @@
     }
 
     .body-core {
-      transform-origin: 50% 73%;
+      transform-origin: 50% 66%;
     }
 
-    .arm-left { transform-origin: 91px 146px; transform: rotate(var(--arm-left, -18deg)); }
-    .arm-right { transform-origin: 169px 146px; transform: rotate(var(--arm-right, 18deg)); }
-    .leg-left { transform-origin: 112px 262px; transform: rotate(var(--leg-left, 0deg)); }
-    .leg-right { transform-origin: 148px 262px; transform: rotate(var(--leg-right, 0deg)); }
+    .arm-left { transform-origin: 100% 0%; transform: rotate(var(--arm-left, -4deg)); }
+    .arm-right { transform-origin: 0% 0%; transform: rotate(var(--arm-right, 4deg)); }
+    .leg-left { transform-origin: 50% 0%; transform: rotate(var(--leg-left, 0deg)); }
+    .leg-right { transform-origin: 50% 0%; transform: rotate(var(--leg-right, 0deg)); }
 
     .pet.is-dragging .arm-left { transform: rotate(var(--grab-left, -78deg)); }
     .pet.is-dragging .arm-right { transform: rotate(var(--grab-right, 78deg)); }
@@ -963,8 +963,15 @@
       h1 { font-size: clamp(20px, 5.6vw, 28px); }
       .stage-shell { border-radius: 12px; }
       .stats { grid-template-columns: 1fr; }
-      .actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .action-btn { min-height: 52px; }
+      .actions {
+        grid-template-columns: repeat(2, calc((100% - 8px) / 2));
+        gap: 8px;
+      }
+      .action-btn {
+        min-height: 52px;
+        padding: 0 4px;
+        font-size: 15px;
+      }
       .meters-line { grid-column: 1; }
       .friend { width: 88px; }
       .friend.xiaohe { width: 122px; right: -2px; }
@@ -1128,72 +1135,77 @@
         <img class="friend xiaohe" id="xiaohe" src="assets/xiaohe.webp" alt="小河" loading="lazy">
 
         <div class="pet" id="pet" data-face="sad" role="button" aria-label="摸摸、戳戳或拎起田中" tabindex="0">
-          <svg class="tanaka-rig" viewBox="0 0 260 320" aria-hidden="true">
-            <ellipse cx="130" cy="286" rx="58" ry="12" fill="rgba(35, 28, 22, .16)"/>
+          <svg class="tanaka-rig" viewBox="0 0 200 420" aria-hidden="true">
+            <ellipse cx="100" cy="409" rx="49" ry="9" fill="rgba(35, 28, 22, .15)"/>
             <g class="leaf">
-              <path d="M123 62 C96 45 95 23 119 18 C139 16 145 38 134 63 Z" fill="#80bd45" stroke="#2b2520" stroke-width="7" stroke-linejoin="round"/>
-              <path d="M137 63 C147 38 169 29 181 45 C191 59 169 75 140 72 Z" fill="#6fb248" stroke="#2b2520" stroke-width="7" stroke-linejoin="round"/>
-              <path d="M128 65 C119 38 131 21 149 25 C168 29 161 54 134 70 Z" fill="#91ca58" stroke="#2b2520" stroke-width="7" stroke-linejoin="round"/>
+              <path d="M78 109 C60 87 54 48 67 34 C78 21 94 39 100 96 L100 111 Z" fill="#7fbd42" stroke="#2b2520" stroke-width="8" stroke-linejoin="round"/>
+              <path d="M96 111 C85 81 91 23 106 12 C123 0 137 41 119 111 Z" fill="#92cf51" stroke="#2b2520" stroke-width="8" stroke-linejoin="round"/>
+              <path d="M116 111 C124 72 143 41 157 45 C174 50 166 92 128 111 Z" fill="#70ae42" stroke="#2b2520" stroke-width="8" stroke-linejoin="round"/>
             </g>
             <g class="arm arm-left">
-              <path d="M96 145 C74 147 62 162 52 177" fill="none" stroke="#2b2520" stroke-width="8" stroke-linecap="round"/>
-              <circle cx="51" cy="178" r="6" fill="#2b2520"/>
+              <path d="M42 167 C29 205 22 245 17 286" fill="none" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
+              <circle cx="17" cy="287" r="7" fill="#2b2520"/>
             </g>
             <g class="arm arm-right">
-              <path d="M164 145 C186 148 199 162 207 179" fill="none" stroke="#2b2520" stroke-width="8" stroke-linecap="round"/>
-              <circle cx="208" cy="180" r="6" fill="#2b2520"/>
+              <path d="M158 167 C171 205 178 245 183 286" fill="none" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
+              <circle cx="183" cy="287" r="7" fill="#2b2520"/>
             </g>
             <g class="body-core">
-              <path class="body-fill" d="M131 62 C91 69 76 101 78 143 C80 191 99 238 126 270 C133 278 143 276 149 267 C172 232 184 189 183 141 C182 99 169 68 131 62 Z" fill="#f2832f" stroke="#2b2520" stroke-width="8" stroke-linejoin="round"/>
-              <path d="M92 119 C112 126 145 126 169 116" fill="none" stroke="#d96c25" stroke-width="5" stroke-linecap="round" opacity=".72"/>
-              <path d="M91 170 C118 177 147 177 172 166" fill="none" stroke="#d96c25" stroke-width="5" stroke-linecap="round" opacity=".6"/>
-              <path d="M105 218 C123 225 145 224 161 215" fill="none" stroke="#d96c25" stroke-width="5" stroke-linecap="round" opacity=".42"/>
+              <path class="body-fill" d="M43 108 C53 103 147 103 157 108 C164 151 160 218 142 278 C129 323 112 365 100 388 C88 365 71 323 58 278 C40 218 36 151 43 108 Z" fill="#f88c32" stroke="#2b2520" stroke-width="8" stroke-linejoin="round"/>
+              <path d="M50 115 C67 112 133 112 151 115" fill="none" stroke="#ffac55" stroke-width="6" stroke-linecap="round" opacity=".34"/>
               <g class="face">
                 <g data-eye="sad">
-                  <path d="M107 129 L118 136" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
-                  <path d="M154 136 L165 129" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
+                  <rect x="73" y="173" width="9" height="7" rx="2" fill="#2b2520"/>
+                  <rect x="119" y="173" width="9" height="7" rx="2" fill="#2b2520"/>
                 </g>
                 <g data-mouth="sad">
-                  <path d="M118 162 C127 154 141 154 150 162" fill="none" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
+                  <path d="M62 227 C84 224 116 224 138 227" fill="none" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
+                  <path d="M78 249 C91 250 109 250 122 249" fill="none" stroke="#2b2520" stroke-width="5" stroke-linecap="round"/>
                 </g>
                 <g data-eye="flat">
-                  <path d="M106 132 L119 132" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
-                  <path d="M153 132 L166 132" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
+                  <path d="M72 176 L83 176" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
+                  <path d="M118 176 L129 176" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
                 </g>
                 <g data-mouth="flat">
-                  <path d="M119 162 L151 162" fill="none" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
+                  <path d="M60 228 L140 228" fill="none" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
+                  <path d="M78 250 L122 250" fill="none" stroke="#2b2520" stroke-width="5" stroke-linecap="round"/>
                 </g>
                 <g data-eye="soft">
-                  <path d="M108 130 C112 136 118 136 122 130" fill="none" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
-                  <path d="M152 130 C156 136 162 136 166 130" fill="none" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
+                  <rect x="74" y="173" width="8" height="6" rx="2" fill="#2b2520"/>
+                  <rect x="119" y="173" width="8" height="6" rx="2" fill="#2b2520"/>
                 </g>
                 <g data-mouth="soft">
-                  <path d="M119 158 C127 168 143 168 151 158" fill="none" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
+                  <path d="M63 226 C84 229 116 229 137 226" fill="none" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
+                  <path d="M80 248 C91 250 109 250 120 248" fill="none" stroke="#2b2520" stroke-width="5" stroke-linecap="round"/>
                 </g>
                 <g data-eye="shock">
-                  <circle cx="113" cy="132" r="7" fill="#2b2520"/>
-                  <circle cx="160" cy="132" r="7" fill="#2b2520"/>
+                  <rect x="71" y="170" width="12" height="10" rx="3" fill="#2b2520"/>
+                  <rect x="118" y="170" width="12" height="10" rx="3" fill="#2b2520"/>
                 </g>
                 <g data-mouth="shock">
-                  <ellipse cx="136" cy="163" rx="11" ry="14" fill="#2b2520"/>
+                  <path d="M63 226 C83 217 117 217 137 226" fill="none" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
+                  <ellipse cx="100" cy="248" rx="9" ry="7" fill="#2b2520"/>
                 </g>
                 <g data-eye="sleep">
-                  <path d="M106 131 C111 127 117 127 122 131" fill="none" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
-                  <path d="M151 131 C156 127 162 127 167 131" fill="none" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
+                  <path d="M72 176 C76 173 80 173 84 176" fill="none" stroke="#2b2520" stroke-width="5" stroke-linecap="round"/>
+                  <path d="M116 176 C121 173 125 173 130 176" fill="none" stroke="#2b2520" stroke-width="5" stroke-linecap="round"/>
                 </g>
                 <g data-mouth="sleep">
-                  <path d="M123 164 C130 168 141 168 148 164" fill="none" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
+                  <path d="M64 228 C84 225 116 225 136 228" fill="none" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
+                  <path d="M82 250 C93 251 107 251 118 250" fill="none" stroke="#2b2520" stroke-width="5" stroke-linecap="round"/>
                 </g>
                 <g class="sleep-mark">
-                  <text x="162" y="102" fill="#2b2520" font-size="22" font-weight="900">Z</text>
+                  <text x="126" y="153" fill="#2b2520" font-size="21" font-weight="900">Z</text>
                 </g>
               </g>
             </g>
             <g class="leg leg-left">
-              <path d="M115 260 C108 277 103 286 94 297" fill="none" stroke="#2b2520" stroke-width="8" stroke-linecap="round"/>
+              <path d="M82 352 C81 374 81 391 79 407" fill="none" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
+              <circle cx="77" cy="407" r="7" fill="#2b2520"/>
             </g>
             <g class="leg leg-right">
-              <path d="M146 260 C153 276 159 286 169 296" fill="none" stroke="#2b2520" stroke-width="8" stroke-linecap="round"/>
+              <path d="M118 352 C119 374 119 391 121 407" fill="none" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
+              <circle cx="123" cy="407" r="7" fill="#2b2520"/>
             </g>
           </svg>
         </div>
