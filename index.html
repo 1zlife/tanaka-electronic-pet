@@ -4,6 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>田中电子宠物</title>
+  <link rel="preload" as="image" href="assets/tanaka-stand.webp">
+  <link rel="preload" as="image" href="assets/tanaka-xiaohe-bite.webp">
+  <link rel="preload" as="image" href="assets/tanaka-xiuzhen-fan.webp">
   <style>
     :root {
       color-scheme: light;
@@ -510,13 +513,72 @@
       animation: xiaoheSwoop 1.25s ease both;
     }
 
+    .scene-card {
+      position: absolute;
+      left: 50%;
+      top: 54px;
+      width: min(82%, 340px);
+      min-height: 118px;
+      max-height: 238px;
+      padding: 10px 10px 8px;
+      display: grid;
+      place-items: center;
+      gap: 6px;
+      border: 1px solid rgba(36,31,27,.13);
+      border-radius: 12px;
+      background: rgba(255, 252, 244, .92);
+      box-shadow: 0 18px 42px rgba(45, 32, 24, .18);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -8px) scale(.96);
+      transition: opacity .2s ease, transform .2s ease;
+      z-index: 11;
+    }
+
+    .scene-card.show {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1);
+    }
+
+    .scene-card img {
+      max-width: 100%;
+      max-height: 176px;
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 8px 10px rgba(42, 30, 22, .14));
+    }
+
+    .scene-card span {
+      max-width: 100%;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.2;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    body.theme-night .scene-card {
+      background: rgba(30, 32, 45, .94);
+      border-color: rgba(255, 242, 221, .16);
+    }
+
+    body.theme-night .scene-card span {
+      color: rgba(251, 242, 229, .74);
+    }
+
+    .stage.has-scene .pet {
+      opacity: .38;
+    }
+
     .pet {
       left: 50%;
-      bottom: 30px;
-      width: min(46vw, 190px);
-      max-width: 190px;
-      min-width: 138px;
-      aspect-ratio: 200 / 420;
+      bottom: 64px;
+      width: min(33vw, 158px);
+      max-width: 158px;
+      min-width: 108px;
+      aspect-ratio: 190 / 437;
       z-index: 7;
       touch-action: none;
       user-select: none;
@@ -534,6 +596,49 @@
 
     .pet.is-tired {
       filter: saturate(.82) drop-shadow(0 18px 16px rgba(47, 34, 24, .17));
+    }
+
+    .pet-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+      user-select: none;
+      transform-origin: 50% 74%;
+      animation: originalIdle 3.8s ease-in-out infinite;
+    }
+
+    .pet.is-dragging .pet-img {
+      animation: originalLift .9s ease-in-out infinite alternate;
+      transform-origin: 50% 16%;
+    }
+
+    .pet.is-patted .pet-img {
+      animation: originalPat .55s ease;
+    }
+
+    .pet.is-poked .pet-img {
+      animation: originalPoke .42s ease;
+    }
+
+    .pet.is-feet .pet-img {
+      animation: originalKick .44s ease;
+    }
+
+    .pet.is-shaken .pet-img {
+      animation: shakeOut .55s ease;
+    }
+
+    .pet.act-work .pet-img,
+    .pet.act-bag .pet-img,
+    .pet.act-xiaohe .pet-img {
+      animation: originalNervous .18s linear infinite alternate;
+    }
+
+    .pet.act-blanket .pet-img {
+      animation: originalSleep 1.5s ease-in-out infinite;
+      opacity: .75;
     }
 
     .tanaka-rig {
@@ -1004,6 +1109,44 @@
       50% { transform: rotate(1.2deg) translateY(-4px); }
     }
 
+    @keyframes originalIdle {
+      0%, 100% { transform: translateY(0) rotate(-.8deg); }
+      50% { transform: translateY(-4px) rotate(.8deg); }
+    }
+
+    @keyframes originalLift {
+      from { transform: rotate(-3deg) scale(1.02); }
+      to { transform: rotate(3deg) scale(1.04); }
+    }
+
+    @keyframes originalPat {
+      0%, 100% { transform: translateY(0) scale(1); }
+      38% { transform: translateY(5px) scale(1.06, .95); }
+      70% { transform: translateY(-2px) scale(.98, 1.03); }
+    }
+
+    @keyframes originalPoke {
+      0%, 100% { transform: translateX(0) scale(1); }
+      34% { transform: translateX(8px) scale(.92, 1.04); }
+      68% { transform: translateX(-5px) scale(1.04, .96); }
+    }
+
+    @keyframes originalKick {
+      0%, 100% { transform: translateY(0) rotate(0); }
+      45% { transform: translateY(-8px) rotate(-4deg); }
+      72% { transform: translateY(3px) rotate(3deg); }
+    }
+
+    @keyframes originalNervous {
+      from { transform: translateX(-2px) rotate(-1deg); }
+      to { transform: translateX(2px) rotate(1deg); }
+    }
+
+    @keyframes originalSleep {
+      0%, 100% { transform: translateY(6px) rotate(-2deg) scale(.98); }
+      50% { transform: translateY(10px) rotate(1deg) scale(.96); }
+    }
+
     @keyframes leafIdle {
       0%, 100% { transform: rotate(-3deg); }
       50% { transform: rotate(5deg); }
@@ -1134,80 +1277,13 @@
         <img class="friend xiuzhen" id="xiuzhen" src="assets/xiuzhen.webp" alt="秀珍" loading="lazy">
         <img class="friend xiaohe" id="xiaohe" src="assets/xiaohe.webp" alt="小河" loading="lazy">
 
+        <div class="scene-card" id="sceneCard" aria-hidden="true">
+          <img id="sceneImage" src="assets/tanaka-xiaohe-bite.webp" alt="">
+          <span id="sceneCaption">小河叼田中</span>
+        </div>
+
         <div class="pet" id="pet" data-face="sad" role="button" aria-label="摸摸、戳戳或拎起田中" tabindex="0">
-          <svg class="tanaka-rig" viewBox="0 0 200 420" aria-hidden="true">
-            <ellipse cx="100" cy="409" rx="49" ry="9" fill="rgba(35, 28, 22, .15)"/>
-            <g class="leaf">
-              <path d="M78 109 C60 87 54 48 67 34 C78 21 94 39 100 96 L100 111 Z" fill="#7fbd42" stroke="#2b2520" stroke-width="8" stroke-linejoin="round"/>
-              <path d="M96 111 C85 81 91 23 106 12 C123 0 137 41 119 111 Z" fill="#92cf51" stroke="#2b2520" stroke-width="8" stroke-linejoin="round"/>
-              <path d="M116 111 C124 72 143 41 157 45 C174 50 166 92 128 111 Z" fill="#70ae42" stroke="#2b2520" stroke-width="8" stroke-linejoin="round"/>
-            </g>
-            <g class="arm arm-left">
-              <path d="M42 167 C29 205 22 245 17 286" fill="none" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
-              <circle cx="17" cy="287" r="7" fill="#2b2520"/>
-            </g>
-            <g class="arm arm-right">
-              <path d="M158 167 C171 205 178 245 183 286" fill="none" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
-              <circle cx="183" cy="287" r="7" fill="#2b2520"/>
-            </g>
-            <g class="body-core">
-              <path class="body-fill" d="M43 108 C53 103 147 103 157 108 C164 151 160 218 142 278 C129 323 112 365 100 388 C88 365 71 323 58 278 C40 218 36 151 43 108 Z" fill="#f88c32" stroke="#2b2520" stroke-width="8" stroke-linejoin="round"/>
-              <path d="M50 115 C67 112 133 112 151 115" fill="none" stroke="#ffac55" stroke-width="6" stroke-linecap="round" opacity=".34"/>
-              <g class="face">
-                <g data-eye="sad">
-                  <rect x="73" y="173" width="9" height="7" rx="2" fill="#2b2520"/>
-                  <rect x="119" y="173" width="9" height="7" rx="2" fill="#2b2520"/>
-                </g>
-                <g data-mouth="sad">
-                  <path d="M62 227 C84 224 116 224 138 227" fill="none" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
-                  <path d="M78 249 C91 250 109 250 122 249" fill="none" stroke="#2b2520" stroke-width="5" stroke-linecap="round"/>
-                </g>
-                <g data-eye="flat">
-                  <path d="M72 176 L83 176" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
-                  <path d="M118 176 L129 176" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
-                </g>
-                <g data-mouth="flat">
-                  <path d="M60 228 L140 228" fill="none" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
-                  <path d="M78 250 L122 250" fill="none" stroke="#2b2520" stroke-width="5" stroke-linecap="round"/>
-                </g>
-                <g data-eye="soft">
-                  <rect x="74" y="173" width="8" height="6" rx="2" fill="#2b2520"/>
-                  <rect x="119" y="173" width="8" height="6" rx="2" fill="#2b2520"/>
-                </g>
-                <g data-mouth="soft">
-                  <path d="M63 226 C84 229 116 229 137 226" fill="none" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
-                  <path d="M80 248 C91 250 109 250 120 248" fill="none" stroke="#2b2520" stroke-width="5" stroke-linecap="round"/>
-                </g>
-                <g data-eye="shock">
-                  <rect x="71" y="170" width="12" height="10" rx="3" fill="#2b2520"/>
-                  <rect x="118" y="170" width="12" height="10" rx="3" fill="#2b2520"/>
-                </g>
-                <g data-mouth="shock">
-                  <path d="M63 226 C83 217 117 217 137 226" fill="none" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
-                  <ellipse cx="100" cy="248" rx="9" ry="7" fill="#2b2520"/>
-                </g>
-                <g data-eye="sleep">
-                  <path d="M72 176 C76 173 80 173 84 176" fill="none" stroke="#2b2520" stroke-width="5" stroke-linecap="round"/>
-                  <path d="M116 176 C121 173 125 173 130 176" fill="none" stroke="#2b2520" stroke-width="5" stroke-linecap="round"/>
-                </g>
-                <g data-mouth="sleep">
-                  <path d="M64 228 C84 225 116 225 136 228" fill="none" stroke="#2b2520" stroke-width="6" stroke-linecap="round"/>
-                  <path d="M82 250 C93 251 107 251 118 250" fill="none" stroke="#2b2520" stroke-width="5" stroke-linecap="round"/>
-                </g>
-                <g class="sleep-mark">
-                  <text x="126" y="153" fill="#2b2520" font-size="21" font-weight="900">Z</text>
-                </g>
-              </g>
-            </g>
-            <g class="leg leg-left">
-              <path d="M82 352 C81 374 81 391 79 407" fill="none" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
-              <circle cx="77" cy="407" r="7" fill="#2b2520"/>
-            </g>
-            <g class="leg leg-right">
-              <path d="M118 352 C119 374 119 391 121 407" fill="none" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
-              <circle cx="123" cy="407" r="7" fill="#2b2520"/>
-            </g>
-          </svg>
+          <img class="pet-img" id="petImage" src="assets/tanaka-stand.webp" alt="张田中">
         </div>
 
         <div class="mini-layer" id="miniLayer" aria-hidden="true"></div>
@@ -1271,7 +1347,7 @@
   <script>
     const $ = (selector) => document.querySelector(selector);
     const clamp = (value, min = 0, max = 100) => Math.max(min, Math.min(max, value));
-    const storeKey = "tanaka-pet-state-v8";
+    const storeKey = "tanaka-pet-state-v9";
     const stickers = [
       { id: "idle", name: "丧气待机", img: "assets/tanaka-stand.webp" },
       { id: "flat", name: "扁成萝卜饼", img: "assets/tanaka-flat.webp" },
@@ -1279,8 +1355,21 @@
       { id: "dead", name: "今日已下线", img: "assets/tanaka-dead.webp" },
       { id: "phone", name: "手机防御", img: "assets/tanaka-phone.webp" },
       { id: "smile", name: "稀有微笑", img: "assets/tanaka-smile.webp" },
+      { id: "box", name: "盒装田中", img: "assets/tanaka-box.webp" },
+      { id: "tv", name: "田中被采访", img: "assets/tanaka-tv.webp" },
+      { id: "laptop", name: "电脑上班", img: "assets/tanaka-laptop.webp" },
+      { id: "shirt", name: "工牌田中", img: "assets/tanaka-shirt.webp" },
+      { id: "paint", name: "精神画画", img: "assets/tanaka-paint.webp" },
+      { id: "xiuzhenFan", name: "秀珍陪田中", img: "assets/tanaka-xiuzhen-fan.webp" },
+      { id: "friends", name: "四荤一素小盘", img: "assets/tanaka-with-friends.webp" },
+      { id: "xiaoheBite", name: "小河叼田中", img: "assets/tanaka-xiaohe-bite.webp" },
+      { id: "xiaoheSign", name: "小河举牌", img: "assets/xiaohe-sign.webp" },
       { id: "xiuzhen", name: "秀珍夸夸", img: "assets/xiuzhen.webp" },
+      { id: "xiuzhenCry", name: "秀珍委屈", img: "assets/xiuzhen-cry.webp" },
+      { id: "xiuzhenCarrot", name: "萝卜帽秀珍", img: "assets/xiuzhen-carrot.webp" },
       { id: "xiaohe", name: "小河叼走", img: "assets/xiaohe.webp" },
+      { id: "comicWork", name: "工作没做好", img: "assets/lipu-comic-work.webp" },
+      { id: "comicComfort", name: "必要时我会去世", img: "assets/lipu-comic-comfort.webp" },
       { id: "meme", name: "四荤一素", img: "assets/meme-xiuzhen.webp" }
     ];
 
@@ -1334,7 +1423,7 @@
       bond: 32,
       lively: 42,
       coins: 8,
-      unlocked: ["idle"],
+      unlocked: ["idle", "box", "laptop", "xiuzhenFan", "xiaoheBite", "comicWork"],
       completedTasks: {},
       weather: { kind: "sunny", label: "本地晴", temp: null, updatedAt: 0 },
       sound: false,
@@ -1343,8 +1432,12 @@
 
     const state = loadState();
     const pet = $("#pet");
+    const petImage = $("#petImage");
     const stage = $("#stage");
     const bubble = $("#bubble");
+    const sceneCard = $("#sceneCard");
+    const sceneImage = $("#sceneImage");
+    const sceneCaption = $("#sceneCaption");
     const rainLayer = $("#rainLayer");
     const snowLayer = $("#snowLayer");
     const miniLayer = $("#miniLayer");
@@ -1353,6 +1446,7 @@
     let audioCtx = null;
     let toastTimer = 0;
     let actionTimer = 0;
+    let sceneTimer = 0;
     let mini = null;
     let drag = null;
 
@@ -1444,6 +1538,29 @@
     function showFriend(element, duration = 1400) {
       element.classList.add("show");
       setTimeout(() => element.classList.remove("show"), duration);
+    }
+
+    function showScene(src, caption, duration = 1900) {
+      clearTimeout(sceneTimer);
+      sceneImage.src = src;
+      sceneImage.alt = caption;
+      sceneCaption.textContent = caption;
+      sceneCard.classList.add("show");
+      sceneCard.setAttribute("aria-hidden", "false");
+      stage.classList.add("has-scene");
+      sceneTimer = setTimeout(() => {
+        sceneCard.classList.remove("show");
+        sceneCard.setAttribute("aria-hidden", "true");
+        stage.classList.remove("has-scene");
+      }, duration);
+    }
+
+    function nudgePetImage(src, duration = 900) {
+      const original = petImage.src;
+      petImage.src = src;
+      setTimeout(() => {
+        petImage.src = original;
+      }, duration);
     }
 
     function setFace(face) {
@@ -1788,54 +1905,83 @@
     function actionWater() {
       if (!spendCoins(2)) return;
       setFace("soft");
+      showScene("assets/tanaka-smile.webp", "热水到账，田中短暂微笑", 1500);
       say(state.weather.kind === "rain" ? "雨天热水到账，田中的灵魂重新冒了一点热气。" : "热水到账，田中决定暂时不与世界同归于尽。");
       playSound("pat");
       pulse("is-patted", 560);
       change({ gloom: state.weather.kind === "rain" ? -9 : -6, energy: 8, bond: 2, lively: 1 });
+      unlock("smile");
     }
 
     function actionWork() {
       showProp($("#deskProp"), 1900);
+      const scene = randomLine([
+        { src: "assets/tanaka-laptop.webp", caption: "田中打开电脑，开始低电量上班", id: "laptop" },
+        { src: "assets/tanaka-tv.webp", caption: "田中被采访：今天也没准备好", id: "tv" },
+        { src: "assets/tanaka-shirt.webp", caption: "工牌田中上线，精神轻微折旧", id: "shirt" },
+        { src: "assets/lipu-comic-work.webp", caption: "工作没做好，但饭还是要吃", id: "comicWork" }
+      ]);
+      showScene(scene.src, scene.caption, 1900);
       playAction("act-work", 1700);
       setFace("flat");
       say("工位出现。田中敲了几下键盘，收入到账，精神轻微折旧。");
       playSound("coin");
       change({ coins: 5, gloom: 6, energy: -9, lively: -2 });
       unlock("work");
+      unlock(scene.id);
     }
 
     function actionBag() {
       showProp($("#bagProp"), 1700);
+      const scene = randomLine([
+        { src: "assets/tanaka-box.webp", caption: "超市盒子警报：田中准备逃生", id: "box" },
+        { src: "assets/tanaka-flat.webp", caption: "田中已经趴平，但还在呼吸", id: "flat" }
+      ]);
+      showScene(scene.src, scene.caption, 1700);
       playAction("act-bag", 1450);
       setFace("shock");
       say("超市袋出现。田中想起自己死里逃生，跑得比周一还快。");
       playSound("swoop");
       change({ gloom: 4, energy: -4, lively: 6, coins: 2 });
-      unlock("flat");
+      unlock(scene.id);
     }
 
     function actionXiuzhen() {
       showFriend($("#xiuzhen"), 1800);
+      const scene = randomLine([
+        { src: "assets/tanaka-xiuzhen-fan.webp", caption: "秀珍陪田中缓一口气", id: "xiuzhenFan" },
+        { src: "assets/xiuzhen-carrot.webp", caption: "秀珍戴着萝卜帽来哄田中", id: "xiuzhenCarrot" },
+        { src: "assets/lipu-comic-comfort.webp", caption: "必要时，朋友会把你拉回来", id: "comicComfort" }
+      ]);
+      showScene(scene.src, scene.caption, 1900);
       setFace("soft");
       say("秀珍来了，夸田中今天已经很努力了。田中嘴硬，但亲密值涨了。");
       playSound("pat");
       change({ gloom: -8, bond: 7, energy: 2 });
       unlock("xiuzhen");
+      unlock(scene.id);
     }
 
     function actionXiaohe() {
       showFriend($("#xiaohe"), 1300);
+      const scene = randomLine([
+        { src: "assets/tanaka-xiaohe-bite.webp", caption: "小河无差别叼田中", id: "xiaoheBite" },
+        { src: "assets/xiaohe-sign.webp", caption: "小河举牌，田中被迫参与", id: "xiaoheSign" }
+      ]);
+      showScene(scene.src, scene.caption, 1600);
       playAction("act-xiaohe", 1300);
       setFace("shock");
       say("小河路过，把田中叼走冷静了一圈，又原样送回来了。");
       playSound("swoop");
       change({ gloom: -3, lively: 8, energy: -5, coins: 1 });
       unlock("xiaohe");
+      unlock(scene.id);
     }
 
     function actionSleep() {
       if (!spendCoins(4)) return;
       showProp($("#blanketProp"), 2200);
+      showScene("assets/tanaka-phone.webp", "被窝里的田中开始手机防御", 2100);
       playAction("act-blanket", 2100);
       setFace("sleep");
       const nightBonus = currentPhase() === "night" ? 8 : 0;
@@ -1843,6 +1989,7 @@
       playSound("sleep");
       change({ gloom: -8, energy: 18 + nightBonus, lively: -2, bond: 2 });
       unlock("dead");
+      unlock("phone");
     }
 
     function startMiniGame() {
