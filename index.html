@@ -603,7 +603,7 @@
       inset: 0;
       overflow: visible;
       transform-origin: 50% 76%;
-      animation: originalIdle 3.8s ease-in-out infinite;
+      animation: none;
     }
 
     .limb-svg {
@@ -734,6 +734,9 @@
     }
 
     .tanaka-rig {
+      position: absolute;
+      inset: 0;
+      display: block;
       width: 100%;
       height: 100%;
       overflow: visible;
@@ -758,6 +761,88 @@
       transition: transform .2s ease;
     }
 
+    .tanaka-shadow {
+      fill: rgba(35, 28, 22, .16);
+    }
+
+    .limb-line {
+      fill: none;
+      stroke: var(--hard-line);
+      stroke-width: 7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .limb-hand {
+      fill: var(--hard-line);
+    }
+
+    .leaf-fill {
+      fill: #91c84f;
+      stroke: var(--hard-line);
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .leaf-left { transform-origin: 76% 98%; }
+    .leaf-mid { transform-origin: 50% 98%; }
+    .leaf-right { transform-origin: 25% 98%; }
+
+    .body-fill {
+      fill: var(--orange);
+      stroke: var(--hard-line);
+      stroke-width: 7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .body-ridge {
+      fill: none;
+      stroke: rgba(36, 31, 27, .35);
+      stroke-width: 2.4;
+      stroke-linecap: round;
+    }
+
+    .eye-dot,
+    .mouth-fill {
+      fill: var(--hard-line);
+    }
+
+    .eye-line,
+    .mouth-line {
+      fill: none;
+      stroke: var(--hard-line);
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .tear-mark path {
+      fill: none;
+      stroke: #4db7e9;
+      stroke-width: 5;
+      stroke-linecap: round;
+      animation: tearWobble .72s ease-in-out infinite alternate;
+    }
+
+    .sweat-mark path {
+      fill: #61c4e8;
+      stroke: var(--hard-line);
+      stroke-width: 3;
+      stroke-linejoin: round;
+      animation: sweatDrop .7s ease-in-out infinite alternate;
+    }
+
+    .anger-mark path,
+    .sleep-mark path {
+      fill: none;
+      stroke: var(--hard-line);
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
     .leaf {
       transform-origin: 50% 100%;
       animation: leafIdle 3.2s ease-in-out infinite;
@@ -779,7 +864,9 @@
 
     .pet.is-patted .leaf { animation: leafPat .55s ease; }
     .pet.is-patted .body-core { animation: tinySquash .55s ease; }
+    .pet.is-patted .face { transform: translateY(5px); }
     .pet.is-poked .body-core { animation: pokeSquish .42s ease; }
+    .pet.is-poked .face { transform: translateX(7px); }
     .pet.is-feet .leg-left { animation: kickLeft .44s ease; }
     .pet.is-feet .leg-right { animation: kickRight .44s ease; }
     .pet.is-shaken .tanaka-rig { animation: shakeOut .55s ease; }
@@ -791,6 +878,10 @@
 
     .pet.act-work .body-core {
       transform: translateY(6px) rotate(-2deg);
+    }
+
+    .pet.is-dragging .body-core {
+      transform: translate(var(--core-x, 0px), -4px) rotate(var(--core-rot, 0deg)) scale(1.03, 1.02);
     }
 
     .pet.act-bag .tanaka-rig {
@@ -812,7 +903,10 @@
 
     .face [data-mouth],
     .face [data-eye],
-    .face .sleep-mark {
+    .face .sleep-mark,
+    .face .tear-mark,
+    .face .sweat-mark,
+    .face .anger-mark {
       display: none;
     }
 
@@ -826,7 +920,15 @@
     .pet[data-face="shock"] [data-eye="shock"],
     .pet[data-face="sleep"] [data-mouth="sleep"],
     .pet[data-face="sleep"] [data-eye="sleep"],
-    .pet[data-face="sleep"] .sleep-mark {
+    .pet[data-face="angry"] [data-mouth="angry"],
+    .pet[data-face="angry"] [data-eye="angry"],
+    .pet[data-face="cry"] [data-mouth="cry"],
+    .pet[data-face="cry"] [data-eye="cry"],
+    .pet[data-face="sleep"] .sleep-mark,
+    .pet[data-face="cry"] .tear-mark,
+    .pet[data-face="angry"] .tear-mark,
+    .pet[data-face="shock"] .sweat-mark,
+    .pet[data-face="angry"] .anger-mark {
       display: block;
     }
 
@@ -836,6 +938,10 @@
 
     .pet.is-night .body-core {
       transform: translateY(5px);
+    }
+
+    .pet.is-night.is-dragging .body-core {
+      transform: translate(var(--core-x, 0px), -4px) rotate(var(--core-rot, 0deg)) scale(1.03, 1.02);
     }
 
     .speech {
@@ -1308,6 +1414,16 @@
       58% { transform: rotate(14deg) scale(.96); }
     }
 
+    @keyframes tearWobble {
+      from { transform: translateY(-2px); }
+      to { transform: translateY(3px); }
+    }
+
+    @keyframes sweatDrop {
+      from { transform: translate(0, -2px) rotate(-6deg); }
+      to { transform: translate(2px, 4px) rotate(5deg); }
+    }
+
     @keyframes tinySquash {
       0%, 100% { transform: scale(1); }
       38% { transform: scale(1.04, .96); }
@@ -1434,26 +1550,115 @@
 
         <div class="pet" id="pet" data-face="sad" role="button" aria-label="摸摸、戳戳或拎起田中" tabindex="0">
           <div class="pet-rig" aria-hidden="true">
-            <svg class="limb-svg" viewBox="0 0 190 437">
-              <ellipse class="rig-shadow" cx="96" cy="428" rx="50" ry="8" fill="rgba(35,28,22,.16)"/>
-              <g class="rig-arm rig-arm-left">
-                <path d="M41 164 C29 202 21 246 18 298" fill="none" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
-                <circle cx="18" cy="299" r="7" fill="#2b2520"/>
+            <svg class="tanaka-rig" viewBox="0 0 190 437" focusable="false">
+              <ellipse class="tanaka-shadow" cx="96" cy="428" rx="52" ry="8" />
+
+              <g class="arm arm-left">
+                <path class="limb-line" d="M50 168 C34 214 27 264 24 315" />
+                <circle class="limb-hand" cx="24" cy="315" r="7" />
               </g>
-              <g class="rig-arm rig-arm-right">
-                <path d="M149 164 C162 203 169 246 172 298" fill="none" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
-                <circle cx="172" cy="299" r="7" fill="#2b2520"/>
+              <g class="arm arm-right">
+                <path class="limb-line" d="M140 168 C156 214 163 264 166 315" />
+                <circle class="limb-hand" cx="166" cy="315" r="7" />
               </g>
-              <g class="rig-leg rig-leg-left">
-                <path d="M76 336 C75 369 75 398 74 421" fill="none" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
-                <circle cx="74" cy="421" r="7" fill="#2b2520"/>
+              <g class="leg leg-left">
+                <path class="limb-line" d="M76 316 C75 359 75 392 74 420" />
+                <circle class="limb-hand" cx="74" cy="420" r="7" />
               </g>
-              <g class="rig-leg rig-leg-right">
-                <path d="M116 336 C117 369 118 398 119 421" fill="none" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
-                <circle cx="119" cy="421" r="7" fill="#2b2520"/>
+              <g class="leg leg-right">
+                <path class="limb-line" d="M114 316 C115 359 117 392 119 420" />
+                <circle class="limb-hand" cx="119" cy="420" r="7" />
+              </g>
+
+              <g class="leaf leaf-left">
+                <path class="leaf-fill" d="M82 130 C58 100 45 58 55 25 C80 38 94 78 89 129 Z" />
+              </g>
+              <g class="leaf leaf-mid">
+                <path class="leaf-fill" d="M96 127 C83 85 86 35 103 9 C124 40 119 88 105 130 Z" />
+              </g>
+              <g class="leaf leaf-right">
+                <path class="leaf-fill" d="M111 130 C119 86 143 47 166 30 C173 69 156 108 122 134 Z" />
+              </g>
+
+              <g class="body-core">
+                <path class="body-fill" d="M49 125 C63 119 127 119 141 125 C145 171 141 232 130 292 C121 345 106 391 95 417 C84 391 69 345 60 292 C50 232 45 171 49 125 Z" />
+                <path class="body-ridge" d="M59 127 C77 130 116 130 136 127" />
+                <g class="face">
+                  <g data-eye="sad">
+                    <ellipse class="eye-dot" cx="80" cy="184" rx="4" ry="3.2" />
+                    <ellipse class="eye-dot" cx="111" cy="184" rx="4" ry="3.2" />
+                  </g>
+                  <g data-mouth="sad">
+                    <path class="mouth-line" d="M63 237 C76 235 91 236 104 237" />
+                    <path class="mouth-line" d="M80 258 C94 256 108 257 123 258" />
+                  </g>
+
+                  <g data-eye="flat">
+                    <path class="eye-line" d="M75 184 L84 184" />
+                    <path class="eye-line" d="M107 184 L116 184" />
+                  </g>
+                  <g data-mouth="flat">
+                    <path class="mouth-line" d="M64 244 L126 244" />
+                  </g>
+
+                  <g data-eye="soft">
+                    <path class="eye-line" d="M75 181 C79 184 83 184 87 181" />
+                    <path class="eye-line" d="M104 181 C108 184 112 184 116 181" />
+                  </g>
+                  <g data-mouth="soft">
+                    <path class="mouth-line" d="M78 239 C87 247 103 247 112 239" />
+                  </g>
+
+                  <g data-eye="shock">
+                    <circle class="eye-dot" cx="79" cy="184" r="4.8" />
+                    <circle class="eye-dot" cx="112" cy="184" r="4.8" />
+                  </g>
+                  <g data-mouth="shock">
+                    <ellipse class="mouth-fill" cx="96" cy="241" rx="8" ry="13" />
+                  </g>
+
+                  <g data-eye="sleep">
+                    <path class="eye-line" d="M74 184 C78 188 83 188 87 184" />
+                    <path class="eye-line" d="M104 184 C108 188 113 188 117 184" />
+                  </g>
+                  <g data-mouth="sleep">
+                    <path class="mouth-line" d="M82 243 C89 247 101 247 108 243" />
+                  </g>
+
+                  <g data-eye="angry">
+                    <path class="eye-line" d="M73 176 L86 185" />
+                    <path class="eye-line" d="M118 176 L105 185" />
+                  </g>
+                  <g data-mouth="angry">
+                    <path class="mouth-line" d="M78 234 C86 225 105 225 113 234" />
+                    <path class="mouth-line" d="M82 257 C91 263 105 263 114 257" />
+                  </g>
+
+                  <g data-eye="cry">
+                    <ellipse class="eye-dot" cx="80" cy="183" rx="4" ry="3.2" />
+                    <ellipse class="eye-dot" cx="111" cy="183" rx="4" ry="3.2" />
+                  </g>
+                  <g data-mouth="cry">
+                    <ellipse class="mouth-fill" cx="96" cy="244" rx="9" ry="15" />
+                  </g>
+
+                  <g class="tear-mark">
+                    <path d="M70 193 C56 216 55 239 61 259" />
+                    <path d="M119 193 C134 216 135 239 128 259" />
+                  </g>
+                  <g class="sweat-mark">
+                    <path d="M128 160 C137 171 138 184 128 193 C119 184 120 171 128 160 Z" />
+                  </g>
+                  <g class="anger-mark">
+                    <path d="M57 155 L66 146 L70 158 L82 154" />
+                  </g>
+                  <g class="sleep-mark">
+                    <path d="M125 156 L141 156 L127 172 L144 172" />
+                    <path d="M141 135 L154 135 L143 148 L156 148" />
+                  </g>
+                </g>
               </g>
             </svg>
-            <img class="pet-img" id="petImage" src="assets/tanaka-core.webp" alt="张田中">
           </div>
         </div>
 
@@ -1634,7 +1839,6 @@
 
     const state = loadState();
     const pet = $("#pet");
-    const petImage = $("#petImage");
     const stage = $("#stage");
     const bubble = $("#bubble");
     const sceneCard = $("#sceneCard");
@@ -1650,6 +1854,8 @@
     let toastTimer = 0;
     let actionTimer = 0;
     let sceneTimer = 0;
+    let faceTimer = 0;
+    let faceHoldUntil = 0;
     let mini = null;
     let drag = null;
 
@@ -1759,16 +1965,27 @@
       }, duration);
     }
 
-    function nudgePetImage(src, duration = 900) {
-      const original = petImage.src;
-      petImage.src = src;
-      setTimeout(() => {
-        petImage.src = original;
-      }, duration);
+    function baseFace(phase = currentPhase()) {
+      if (state.energy < 18 || phase === "night" && state.energy < 38) return "sleep";
+      if (state.gloom > 82) return "cry";
+      if (state.gloom > 72) return "flat";
+      if (state.bond > 70 && state.gloom < 45) return "soft";
+      return "sad";
     }
 
-    function setFace(face) {
+    function renderFace(phase = currentPhase()) {
+      if (Date.now() < faceHoldUntil) return;
+      pet.dataset.face = baseFace(phase);
+    }
+
+    function setFace(face, duration = 1200) {
+      clearTimeout(faceTimer);
+      faceHoldUntil = Date.now() + duration;
       pet.dataset.face = face;
+      faceTimer = setTimeout(() => {
+        faceHoldUntil = 0;
+        render();
+      }, duration);
     }
 
     function currentPhase(date = new Date()) {
@@ -1792,11 +2009,7 @@
       pet.classList.toggle("is-night", phase === "night");
       pet.classList.toggle("is-tired", state.energy < 28);
 
-      let face = "sad";
-      if (state.energy < 18 || phase === "night" && state.energy < 38) face = "sleep";
-      else if (state.gloom > 72) face = "flat";
-      else if (state.bond > 70 && state.gloom < 45) face = "soft";
-      pet.dataset.face = face;
+      renderFace(phase);
 
       setBar("gloom", state.gloom);
       setBar("energy", state.energy);
@@ -2003,7 +2216,7 @@
         width: rect.width
       };
       pet.classList.add("is-dragging", "grab-" + drag.grabSide);
-      setFace("shock");
+      setFace("shock", 2400);
       vibrate(10);
     }
 
@@ -2090,7 +2303,7 @@
 
     function patPet() {
       pulse("is-patted", 560);
-      setFace(state.bond > 55 ? "soft" : "sad");
+      setFace(state.bond > 55 ? "soft" : "sad", 1100);
       say(randomLine(lines.pat));
       playSound("pat");
       vibrate(14);
@@ -2100,7 +2313,7 @@
 
     function pokePet() {
       pulse("is-poked", 460);
-      setFace("shock");
+      setFace("shock", 1000);
       say(randomLine(lines.poke));
       playSound("poke");
       vibrate(18);
@@ -2109,7 +2322,7 @@
 
     function footPet() {
       pulse("is-feet", 480);
-      setFace("flat");
+      setFace("flat", 1000);
       say(randomLine(lines.feet));
       playSound("coin");
       vibrate(12);
@@ -2118,7 +2331,7 @@
 
     function actionWater() {
       if (!spendCoins(state.inventory.includes("kettle") ? 1 : 2)) return;
-      setFace("soft");
+      setFace("soft", 1500);
       showScene("assets/tanaka-smile.webp", "热水到账，田中短暂微笑", 1500);
       say(state.weather.kind === "rain" ? "雨天热水到账，田中的灵魂重新冒了一点热气。" : "热水到账，田中决定暂时不与世界同归于尽。");
       playSound("pat");
@@ -2137,7 +2350,7 @@
       ]);
       showScene(scene.src, scene.caption, 1900);
       playAction("act-work", 1700);
-      setFace("flat");
+      setFace("flat", 1700);
       say("工位出现。田中敲了几下键盘，收入到账，精神轻微折旧。");
       playSound("coin");
       change({ coins: 5, gloom: 6, energy: -9, lively: -2 });
@@ -2153,7 +2366,7 @@
       ]);
       showScene(scene.src, scene.caption, 1700);
       playAction("act-bag", 1450);
-      setFace("shock");
+      setFace("shock", 1500);
       say("超市袋出现。田中想起自己死里逃生，跑得比周一还快。");
       playSound("swoop");
       change({ gloom: 4, energy: -4, lively: 6, coins: 2 });
@@ -2168,7 +2381,7 @@
         { src: "assets/lipu-comic-comfort.webp", caption: "必要时，朋友会把你拉回来", id: "comicComfort" }
       ]);
       showScene(scene.src, scene.caption, 1900);
-      setFace("soft");
+      setFace("soft", 1700);
       say("秀珍来了，夸田中今天已经很努力了。田中嘴硬，但亲密值涨了。");
       playSound("pat");
       change({ gloom: -8, bond: 7, energy: 2 });
@@ -2184,7 +2397,7 @@
       ]);
       showScene(scene.src, scene.caption, 1600);
       playAction("act-xiaohe", 1300);
-      setFace("shock");
+      setFace("shock", 1400);
       say("小河路过，把田中叼走冷静了一圈，又原样送回来了。");
       playSound("swoop");
       change({ gloom: -3, lively: 8, energy: -5, coins: 1 });
@@ -2196,6 +2409,7 @@
       showScene("assets/tanaka-hammer-earth.webp", "田中：我要打爆一切，尤其是无聊", 1900);
       playAction("act-bag", 900);
       pulse("is-shaken", 560);
+      setFace("angry", 1700);
       say("锤爆地球触发。现实不能砸，先把无聊砸一下。");
       playSound("swoop");
       vibrate(22);
@@ -2206,6 +2420,13 @@
     function actionFriends() {
       const friend = randomLine(friendVisits);
       showScene(friend.img, friend.name + " 来访", 1800);
+      setFace({
+        lipu: "shock",
+        duodong: "flat",
+        xiuzhenFan: "soft",
+        xiaoheBite: "shock",
+        friends: "soft"
+      }[friend.id] || "sad", 1600);
       say(friend.line);
       playSound(friend.id === "xiaoheBite" ? "swoop" : "pat");
       change(friend.delta);
@@ -2220,7 +2441,7 @@
       showProp($("#blanketProp"), 2200);
       showScene("assets/tanaka-phone.webp", "被窝里的田中开始手机防御", 2100);
       playAction("act-blanket", 2100);
-      setFace("sleep");
+      setFace("sleep", 2200);
       const nightBonus = currentPhase() === "night" ? 8 : 0;
       say(currentPhase() === "night" ? "夜晚被窝加成，田中进入低功耗回血。" : "田中被放进被窝，暂时不用对抗生活。");
       playSound("sleep");
@@ -2235,6 +2456,7 @@
       mini = { score: 0, taps: 0, endsAt: Date.now() + duration, spawner: 0, closer: 0 };
       miniLayer.setAttribute("aria-hidden", "false");
       $("#miniSmall").textContent = "进行中";
+      setFace("shock", duration);
       say("清理无聊开始：直接点掉飘出来的烦人事，捡到萝卜币就算赚。");
       spawnBit();
       mini.spawner = setInterval(spawnBit, 690);
@@ -2267,6 +2489,7 @@
         bit.classList.add("pop");
         mini.score += item.score;
         mini.taps += 1;
+        setFace(item.kind === "good" ? "soft" : (state.gloom > 78 ? "cry" : "flat"), 650);
         change(item.delta);
         if (item.scene) showScene(item.scene, "田中暴打地球", 1300);
         if (item.unlock) unlock(item.unlock);
