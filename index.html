@@ -72,7 +72,8 @@
     }
 
     .app {
-      width: min(100%, 540px);
+      width: 100%;
+      max-width: 540px;
       margin: 0 auto;
       padding: max(12px, env(safe-area-inset-top)) 12px max(18px, env(safe-area-inset-bottom));
     }
@@ -1405,7 +1406,11 @@
         padding: 0 4px;
         font-size: 15px;
       }
-      .meters-line { grid-column: 1; }
+      .meters-line {
+        grid-column: 1;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+      }
       .friend { width: 88px; }
       .friend.xiaohe { width: 122px; right: -2px; }
       .desk { right: 12px; width: 132px; transform-origin: 100% 100%; }
