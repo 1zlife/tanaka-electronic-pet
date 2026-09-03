@@ -936,8 +936,6 @@
 
     .pet[data-face="flat"] [data-mouth="flat"],
     .pet[data-face="flat"] [data-eye="flat"],
-    .pet[data-face="soft"] [data-mouth="soft"],
-    .pet[data-face="soft"] [data-eye="soft"],
     .pet[data-face="shock"] [data-mouth="shock"],
     .pet[data-face="shock"] [data-eye="shock"],
     .pet[data-face="sleep"] [data-mouth="sleep"],
@@ -947,7 +945,6 @@
     .pet[data-face="cry"] [data-mouth="cry"],
     .pet[data-face="cry"] [data-eye="cry"],
     .pet[data-face="flat"] .face-patch,
-    .pet[data-face="soft"] .face-patch,
     .pet[data-face="shock"] .face-patch,
     .pet[data-face="sleep"] .face-patch,
     .pet[data-face="angry"] .face-patch,
@@ -1619,15 +1616,6 @@
                     <path class="mouth-line" d="M46 250 L140 250" />
                   </g>
 
-                  <g data-eye="soft">
-                    <path class="eye-line tanaka-eye-line" d="M57 188 L70 191" />
-                    <path class="eye-line tanaka-eye-line" d="M121 191 L134 188" />
-                  </g>
-                  <g data-mouth="soft">
-                    <path class="mouth-line" d="M47 244 C73 241 113 242 139 244" />
-                    <path class="mouth-line mouth-small" d="M69 263 C84 262 107 263 122 264" />
-                  </g>
-
                   <g data-eye="shock">
                     <path class="eye-line tanaka-eye-line" d="M56 187 L70 192" />
                     <path class="eye-line tanaka-eye-line" d="M121 192 L135 187" />
@@ -1762,7 +1750,6 @@
       { id: "work", name: "工位续命", img: "assets/tanaka-work.webp" },
       { id: "dead", name: "今日已下线", img: "assets/tanaka-dead.webp" },
       { id: "phone", name: "手机防御", img: "assets/tanaka-phone.webp" },
-      { id: "smile", name: "营业梗图", img: "assets/tanaka-smile.webp" },
       { id: "box", name: "盒装田中", img: "assets/tanaka-box.webp" },
       { id: "tv", name: "田中被采访", img: "assets/tanaka-tv.webp" },
       { id: "laptop", name: "电脑上班", img: "assets/tanaka-laptop.webp" },
@@ -1941,7 +1928,8 @@
     function unlock(id) {
       if (state.unlocked.includes(id)) return false;
       state.unlocked.push(id);
-      showToast("解锁：" + stickers.find((item) => item.id === id).name);
+      const item = stickers.find((entry) => entry.id === id);
+      showToast("解锁：" + (item ? item.name : id));
       renderStickers();
       saveState();
       return true;
@@ -1990,7 +1978,6 @@
       if (state.energy < 18 || phase === "night" && state.energy < 38) return "sleep";
       if (state.gloom > 82) return "cry";
       if (state.gloom > 72) return "flat";
-      if (state.bond > 70 && state.gloom < 45) return "soft";
       return "sad";
     }
 
@@ -2037,7 +2024,8 @@
       setBar("bond", state.bond);
       setBar("lively", state.lively);
       $("#coinText").textContent = Math.round(state.coins);
-      $("#rewardText").textContent = "奖励 " + state.unlocked.length + "/" + stickers.length;
+      const unlockedVisible = stickers.filter((item) => state.unlocked.includes(item.id)).length;
+      $("#rewardText").textContent = "奖励 " + unlockedVisible + "/" + stickers.length;
       $("#waterSmall").textContent = (state.inventory.includes("kettle") ? 1 : 2) + "币";
       $("#sleepSmall").textContent = (state.inventory.includes("quilt") ? 2 : 4) + "币";
       $("#soundBtn").textContent = state.sound ? "静" : "声";
@@ -2324,7 +2312,7 @@
 
     function patPet() {
       pulse("is-patted", 560);
-      setFace(state.bond > 55 ? "soft" : "sad", 1100);
+      setFace("sad", 900);
       say(randomLine(lines.pat));
       playSound("pat");
       vibrate(14);
@@ -2352,7 +2340,7 @@
 
     function actionWater() {
       if (!spendCoins(state.inventory.includes("kettle") ? 1 : 2)) return;
-      setFace("soft", 1500);
+      setFace("flat", 1500);
       showScene("assets/tanaka-phone.webp", "热水续命，田中暂时不断线", 1500);
       say(state.weather.kind === "rain" ? "雨天热水到账，田中的灵魂重新冒了一点热气。" : "热水到账，田中决定暂时不与世界同归于尽。");
       playSound("pat");
@@ -2402,7 +2390,7 @@
         { src: "assets/lipu-comic-comfort.webp", caption: "必要时，朋友会把你拉回来", id: "comicComfort" }
       ]);
       showScene(scene.src, scene.caption, 1900);
-      setFace("soft", 1700);
+      setFace("sad", 1700);
       say("秀珍来了，夸田中今天已经很努力了。田中嘴硬，但亲密值涨了。");
       playSound("pat");
       change({ gloom: -8, bond: 7, energy: 2 });
@@ -2444,9 +2432,9 @@
       setFace({
         lipu: "shock",
         duodong: "flat",
-        xiuzhenFan: "soft",
+        xiuzhenFan: "sad",
         xiaoheBite: "shock",
-        friends: "soft"
+        friends: "flat"
       }[friend.id] || "sad", 1600);
       say(friend.line);
       playSound(friend.id === "xiaoheBite" ? "swoop" : "pat");
@@ -2510,7 +2498,7 @@
         bit.classList.add("pop");
         mini.score += item.score;
         mini.taps += 1;
-        setFace(item.kind === "good" ? "soft" : (state.gloom > 78 ? "cry" : "flat"), 650);
+        setFace(item.kind === "good" ? "sad" : (state.gloom > 78 ? "cry" : "flat"), 650);
         change(item.delta);
         if (item.scene) showScene(item.scene, "田中暴打地球", 1300);
         if (item.unlock) unlock(item.unlock);
