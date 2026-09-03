@@ -598,19 +598,72 @@
       filter: saturate(.82) drop-shadow(0 18px 16px rgba(47, 34, 24, .17));
     }
 
-    .pet-img {
+    .pet-rig {
+      position: absolute;
+      inset: 0;
+      overflow: visible;
+      transform-origin: 50% 76%;
+      animation: originalIdle 3.8s ease-in-out infinite;
+    }
+
+    .limb-svg {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
       width: 100%;
       height: 100%;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .rig-arm,
+    .rig-leg {
+      transition: transform .18s ease;
+      transform-box: view-box;
+    }
+
+    .rig-arm-left {
+      transform-origin: 41px 164px;
+      transform: rotate(var(--arm-left-angle, -1deg));
+    }
+
+    .rig-arm-right {
+      transform-origin: 149px 164px;
+      transform: rotate(var(--arm-right-angle, 1deg));
+    }
+
+    .rig-leg-left {
+      transform-origin: 76px 336px;
+      transform: rotate(var(--leg-left-angle, 0deg));
+    }
+
+    .rig-leg-right {
+      transform-origin: 116px 336px;
+      transform: rotate(var(--leg-right-angle, 0deg));
+    }
+
+    .pet-img {
+      position: absolute;
+      left: 11.6%;
+      top: 0;
+      z-index: 2;
+      width: 100%;
+      height: auto;
+      max-width: 76.8%;
       object-fit: contain;
       display: block;
       pointer-events: none;
       user-select: none;
       transform-origin: 50% 74%;
-      animation: originalIdle 3.8s ease-in-out infinite;
+      transition: transform .18s ease, filter .18s ease;
+    }
+
+    .pet.is-dragging .pet-rig {
+      animation: none;
     }
 
     .pet.is-dragging .pet-img {
-      animation: originalLift .9s ease-in-out infinite alternate;
+      transform: translate(var(--core-x, 0px), -4px) rotate(var(--core-rot, 0deg)) scale(1.03, 1.02);
       transform-origin: 50% 16%;
     }
 
@@ -629,6 +682,45 @@
     .pet.is-shaken .pet-img {
       animation: shakeOut .55s ease;
     }
+
+    .pet.is-dragging.grab-left .rig-arm-left {
+      transform: rotate(var(--grab-left, -78deg));
+    }
+
+    .pet.is-dragging.grab-left .rig-arm-right {
+      transform: rotate(16deg);
+    }
+
+    .pet.is-dragging.grab-right .rig-arm-left {
+      transform: rotate(-16deg);
+    }
+
+    .pet.is-dragging.grab-right .rig-arm-right {
+      transform: rotate(var(--grab-right, 78deg));
+    }
+
+    .pet.is-dragging.grab-body .rig-arm-left {
+      transform: rotate(var(--grab-left, -56deg));
+    }
+
+    .pet.is-dragging.grab-body .rig-arm-right {
+      transform: rotate(var(--grab-right, 56deg));
+    }
+
+    .pet.is-dragging .rig-leg-left {
+      transform: rotate(-18deg) translateY(4px);
+    }
+
+    .pet.is-dragging .rig-leg-right {
+      transform: rotate(18deg) translateY(4px);
+    }
+
+    .pet.is-patted .rig-arm-left { transform: rotate(-12deg); }
+    .pet.is-patted .rig-arm-right { transform: rotate(12deg); }
+    .pet.is-poked .rig-arm-left { transform: rotate(-26deg); }
+    .pet.is-poked .rig-arm-right { transform: rotate(26deg); }
+    .pet.is-feet .rig-leg-left { animation: kickLeft .44s ease; }
+    .pet.is-feet .rig-leg-right { animation: kickRight .44s ease; }
 
     .pet.act-work .pet-img,
     .pet.act-bag .pet-img,
@@ -1033,6 +1125,64 @@
       object-fit: contain;
     }
 
+    .shop-grid {
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      overflow-y: auto;
+      max-height: 460px;
+    }
+
+    .shop-item {
+      display: grid;
+      grid-template-columns: 82px minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 92px;
+      border: 1px solid rgba(36,31,27,.13);
+      border-radius: 10px;
+      background: rgba(255,255,255,.58);
+      padding: 8px;
+    }
+
+    .shop-item img {
+      width: 82px;
+      height: 74px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: rgba(255,255,255,.38);
+    }
+
+    .shop-title {
+      font-weight: 900;
+      margin-bottom: 3px;
+    }
+
+    .shop-desc {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .buy-btn {
+      min-width: 58px;
+      min-height: 40px;
+      border: 1px solid rgba(36,31,27,.16);
+      border-radius: 8px;
+      background: #fff4c8;
+      font-weight: 900;
+      padding: 0 8px;
+    }
+
+    body.theme-night .shop-item {
+      background: rgba(255, 247, 226, .1);
+      border-color: rgba(255, 242, 221, .14);
+    }
+
+    body.theme-night .shop-desc {
+      color: rgba(251, 242, 229, .7);
+    }
+
     .toast {
       position: fixed;
       left: 50%;
@@ -1283,7 +1433,28 @@
         </div>
 
         <div class="pet" id="pet" data-face="sad" role="button" aria-label="摸摸、戳戳或拎起田中" tabindex="0">
-          <img class="pet-img" id="petImage" src="assets/tanaka-stand.webp" alt="张田中">
+          <div class="pet-rig" aria-hidden="true">
+            <svg class="limb-svg" viewBox="0 0 190 437">
+              <ellipse class="rig-shadow" cx="96" cy="428" rx="50" ry="8" fill="rgba(35,28,22,.16)"/>
+              <g class="rig-arm rig-arm-left">
+                <path d="M41 164 C29 202 21 246 18 298" fill="none" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
+                <circle cx="18" cy="299" r="7" fill="#2b2520"/>
+              </g>
+              <g class="rig-arm rig-arm-right">
+                <path d="M149 164 C162 203 169 246 172 298" fill="none" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
+                <circle cx="172" cy="299" r="7" fill="#2b2520"/>
+              </g>
+              <g class="rig-leg rig-leg-left">
+                <path d="M76 336 C75 369 75 398 74 421" fill="none" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
+                <circle cx="74" cy="421" r="7" fill="#2b2520"/>
+              </g>
+              <g class="rig-leg rig-leg-right">
+                <path d="M116 336 C117 369 118 398 119 421" fill="none" stroke="#2b2520" stroke-width="7" stroke-linecap="round"/>
+                <circle cx="119" cy="421" r="7" fill="#2b2520"/>
+              </g>
+            </svg>
+            <img class="pet-img" id="petImage" src="assets/tanaka-core.webp" alt="张田中">
+          </div>
         </div>
 
         <div class="mini-layer" id="miniLayer" aria-hidden="true"></div>
@@ -1315,13 +1486,16 @@
     </section>
 
     <section class="panel actions" aria-label="动作">
-      <button class="action-btn" type="button" data-action="water">热水<small>2币</small></button>
+      <button class="action-btn" type="button" data-action="water">热水<small id="waterSmall">2币</small></button>
       <button class="action-btn" type="button" data-action="work">去工位<small>赚币</small></button>
       <button class="action-btn" type="button" data-action="bag">超市袋<small>逃生</small></button>
       <button class="action-btn" type="button" data-action="xiuzhen">叫秀珍<small>安慰</small></button>
       <button class="action-btn" type="button" data-action="xiaohe">小河叼走<small>发疯</small></button>
-      <button class="action-btn" type="button" data-action="sleep">被窝<small>4币</small></button>
+      <button class="action-btn" type="button" data-action="sleep">被窝<small id="sleepSmall">4币</small></button>
+      <button class="action-btn" type="button" data-action="earth">锤地球<small>经典</small></button>
+      <button class="action-btn" type="button" data-action="friends">朋友来访<small>随机</small></button>
       <button class="action-btn" type="button" data-action="mini">清理无聊<small id="miniSmall">小游戏</small></button>
+      <button class="action-btn" type="button" data-action="shop">商店<small>道具</small></button>
       <button class="action-btn" type="button" data-action="stickers">表情抽屉<small>收藏</small></button>
     </section>
 
@@ -1342,6 +1516,14 @@
     <div class="sticker-grid" id="stickerGrid"></div>
   </section>
 
+  <section class="drawer" id="shopDrawer" aria-label="萝卜商店" aria-hidden="true">
+    <div class="drawer-head">
+      <strong>萝卜商店</strong>
+      <button class="small-btn" id="closeShop" type="button">收起</button>
+    </div>
+    <div class="shop-grid" id="shopGrid"></div>
+  </section>
+
   <div class="toast" id="toast"></div>
 
   <script>
@@ -1360,8 +1542,12 @@
       { id: "laptop", name: "电脑上班", img: "assets/tanaka-laptop.webp" },
       { id: "shirt", name: "工牌田中", img: "assets/tanaka-shirt.webp" },
       { id: "paint", name: "精神画画", img: "assets/tanaka-paint.webp" },
+      { id: "earth", name: "锤爆地球", img: "assets/tanaka-hammer-earth.webp" },
       { id: "xiuzhenFan", name: "秀珍陪田中", img: "assets/tanaka-xiuzhen-fan.webp" },
       { id: "friends", name: "四荤一素小盘", img: "assets/tanaka-with-friends.webp" },
+      { id: "badges", name: "四荤一素徽章", img: "assets/friends-badges.webp" },
+      { id: "lipu", name: "暹罗厘普来访", img: "assets/lipu.webp" },
+      { id: "duodong", name: "多栋来访", img: "assets/duodong.webp" },
       { id: "xiaoheBite", name: "小河叼田中", img: "assets/tanaka-xiaohe-bite.webp" },
       { id: "xiaoheSign", name: "小河举牌", img: "assets/xiaohe-sign.webp" },
       { id: "xiuzhen", name: "秀珍夸夸", img: "assets/xiuzhen.webp" },
@@ -1371,6 +1557,21 @@
       { id: "comicWork", name: "工作没做好", img: "assets/lipu-comic-work.webp" },
       { id: "comicComfort", name: "必要时我会去世", img: "assets/lipu-comic-comfort.webp" },
       { id: "meme", name: "四荤一素", img: "assets/meme-xiuzhen.webp" }
+    ];
+
+    const friendVisits = [
+      { id: "lipu", name: "暹罗厘普", img: "assets/lipu.webp", line: "厘普来发疯巡逻，田中被迫精神起来一点。", delta: { gloom: -2, lively: 7, energy: -1 } },
+      { id: "duodong", name: "多栋", img: "assets/duodong.webp", line: "多栋说好，田中不知道好在哪里，但币到账了。", delta: { coins: 2, lively: 4, gloom: -1 } },
+      { id: "xiuzhenFan", name: "秀珍", img: "assets/tanaka-xiuzhen-fan.webp", line: "秀珍陪田中缓一口气，现实没有变好，但有人在旁边。", delta: { gloom: -7, bond: 6, energy: 2 } },
+      { id: "xiaoheBite", name: "小河", img: "assets/tanaka-xiaohe-bite.webp", line: "小河叼走田中，所有内耗暂停十秒。", delta: { gloom: -4, lively: 8, energy: -4 } },
+      { id: "friends", name: "四荤一素", img: "assets/tanaka-with-friends.webp", line: "全员挤成一盘，田中获得群体低功耗陪伴。", delta: { gloom: -5, bond: 5, lively: 5 } }
+    ];
+
+    const shopItems = [
+      { id: "kettle", name: "热水壶", price: 6, img: "assets/tanaka-smile.webp", desc: "热水从 2 币降到 1 币。" },
+      { id: "quilt", name: "厚被窝", price: 8, img: "assets/tanaka-phone.webp", desc: "睡觉从 4 币降到 2 币，夜晚回体力更多。" },
+      { id: "raincoat", name: "雨天防御", price: 7, img: "assets/friends-badges.webp", desc: "下雨时丧气上涨减半。" },
+      { id: "earthKit", name: "备用地球", price: 10, img: "assets/tanaka-hammer-earth.webp", desc: "小游戏里会刷出“锤地球”奖励。" }
     ];
 
     const lines = {
@@ -1424,6 +1625,7 @@
       lively: 42,
       coins: 8,
       unlocked: ["idle", "box", "laptop", "xiuzhenFan", "xiaoheBite", "comicWork"],
+      inventory: [],
       completedTasks: {},
       weather: { kind: "sunny", label: "本地晴", temp: null, updatedAt: 0 },
       sound: false,
@@ -1442,6 +1644,7 @@
     const snowLayer = $("#snowLayer");
     const miniLayer = $("#miniLayer");
     const drawer = $("#drawer");
+    const shopDrawer = $("#shopDrawer");
     const toast = $("#toast");
     let audioCtx = null;
     let toastTimer = 0;
@@ -1459,6 +1662,7 @@
           ...parsed,
           weather: { ...defaultState.weather, ...(parsed.weather || {}) },
           unlocked: Array.isArray(parsed.unlocked) ? parsed.unlocked : ["idle"],
+          inventory: Array.isArray(parsed.inventory) ? parsed.inventory : [],
           completedTasks: parsed.completedTasks || {}
         };
       } catch {
@@ -1600,6 +1804,8 @@
       setBar("lively", state.lively);
       $("#coinText").textContent = Math.round(state.coins);
       $("#rewardText").textContent = "奖励 " + state.unlocked.length + "/" + stickers.length;
+      $("#waterSmall").textContent = (state.inventory.includes("kettle") ? 1 : 2) + "币";
+      $("#sleepSmall").textContent = (state.inventory.includes("quilt") ? 2 : 4) + "币";
       $("#soundBtn").textContent = state.sound ? "静" : "声";
       $("#weatherLabel").textContent = weatherText();
       updateClock();
@@ -1720,7 +1926,7 @@
         energy: phase === "night" ? 0.15 : -0.08,
         lively: phase === "day" ? -0.03 : 0.04
       };
-      if (weather === "rain") delta.gloom += 0.08;
+      if (weather === "rain") delta.gloom += state.inventory.includes("raincoat") ? 0.03 : 0.08;
       if (weather === "sunny") delta.lively += 0.07;
       if (weather === "fog") delta.energy -= 0.04;
       change(delta);
@@ -1791,12 +1997,12 @@
         vx: 0,
         vy: 0,
         moved: false,
-        grabSide: local.x < .45 ? "left" : local.x > .55 ? "right" : "both",
+        grabSide: local.x < .34 ? "left" : local.x > .66 ? "right" : "body",
         petX: Number.parseFloat(pet.style.getPropertyValue("--tx")) || 0,
         petY: Number.parseFloat(pet.style.getPropertyValue("--ty")) || 0,
         width: rect.width
       };
-      pet.classList.add("is-dragging");
+      pet.classList.add("is-dragging", "grab-" + drag.grabSide);
       setFace("shock");
       vibrate(10);
     }
@@ -1824,6 +2030,10 @@
       pet.style.setProperty("--tx", tx + "px");
       pet.style.setProperty("--ty", ty + "px");
       pet.style.setProperty("--rot", rot + "deg");
+      pet.style.setProperty("--core-x", clamp(dx * .035, -5, 5) + "px");
+      pet.style.setProperty("--core-rot", clamp(dx / stageRect.width * 18, -9, 9) + "deg");
+      pet.style.setProperty("--leg-left-angle", clamp(-dy / 7 - dx / 20, -22, 22) + "deg");
+      pet.style.setProperty("--leg-right-angle", clamp(-dy / 7 + dx / 20, -22, 22) + "deg");
 
       const lift = clamp(-52 - Math.max(0, -dy) * .12, -94, -38);
       if (drag.grabSide === "left") {
@@ -1846,12 +2056,16 @@
     function onPetUp(event) {
       if (!drag || event.pointerId !== drag.id) return;
       const local = petLocalPoint(event);
-      pet.classList.remove("is-dragging");
+      pet.classList.remove("is-dragging", "grab-left", "grab-right", "grab-body");
       pet.style.setProperty("--tx", "0px");
       pet.style.setProperty("--ty", "0px");
       pet.style.setProperty("--rot", "0deg");
       pet.style.setProperty("--grab-left", "-78deg");
       pet.style.setProperty("--grab-right", "78deg");
+      pet.style.setProperty("--core-x", "0px");
+      pet.style.setProperty("--core-rot", "0deg");
+      pet.style.setProperty("--leg-left-angle", "0deg");
+      pet.style.setProperty("--leg-right-angle", "0deg");
 
       if (!drag.moved) {
         if (local.y < .34) patPet();
@@ -1903,7 +2117,7 @@
     }
 
     function actionWater() {
-      if (!spendCoins(2)) return;
+      if (!spendCoins(state.inventory.includes("kettle") ? 1 : 2)) return;
       setFace("soft");
       showScene("assets/tanaka-smile.webp", "热水到账，田中短暂微笑", 1500);
       say(state.weather.kind === "rain" ? "雨天热水到账，田中的灵魂重新冒了一点热气。" : "热水到账，田中决定暂时不与世界同归于尽。");
@@ -1978,8 +2192,31 @@
       unlock(scene.id);
     }
 
+    function actionEarth() {
+      showScene("assets/tanaka-hammer-earth.webp", "田中：我要打爆一切，尤其是无聊", 1900);
+      playAction("act-bag", 900);
+      pulse("is-shaken", 560);
+      say("锤爆地球触发。现实不能砸，先把无聊砸一下。");
+      playSound("swoop");
+      vibrate(22);
+      change({ gloom: -6, lively: 9, energy: -4, coins: 1 });
+      unlock("earth");
+    }
+
+    function actionFriends() {
+      const friend = randomLine(friendVisits);
+      showScene(friend.img, friend.name + " 来访", 1800);
+      say(friend.line);
+      playSound(friend.id === "xiaoheBite" ? "swoop" : "pat");
+      change(friend.delta);
+      unlock(friend.id);
+      if (friend.id === "duodong") unlock("duodong");
+      if (friend.id === "lipu") unlock("lipu");
+    }
+
     function actionSleep() {
-      if (!spendCoins(4)) return;
+      const hasQuilt = state.inventory.includes("quilt");
+      if (!spendCoins(hasQuilt ? 2 : 4)) return;
       showProp($("#blanketProp"), 2200);
       showScene("assets/tanaka-phone.webp", "被窝里的田中开始手机防御", 2100);
       playAction("act-blanket", 2100);
@@ -1987,7 +2224,7 @@
       const nightBonus = currentPhase() === "night" ? 8 : 0;
       say(currentPhase() === "night" ? "夜晚被窝加成，田中进入低功耗回血。" : "田中被放进被窝，暂时不用对抗生活。");
       playSound("sleep");
-      change({ gloom: -8, energy: 18 + nightBonus, lively: -2, bond: 2 });
+      change({ gloom: -8, energy: 18 + nightBonus + (hasQuilt ? 6 : 0), lively: -2, bond: 2 });
       unlock("dead");
       unlock("phone");
     }
@@ -2014,6 +2251,9 @@
         { label: "返工", kind: "bad", delta: { gloom: 3, energy: -1 }, score: -1 },
         { label: "热水", kind: "good", delta: { energy: 2, gloom: -1 }, score: 1 }
       ];
+      if (state.inventory.includes("earthKit")) {
+        options.push({ label: "地球", kind: "good", delta: { gloom: -4, lively: 4, coins: 1 }, score: 3, scene: "assets/tanaka-hammer-earth.webp", unlock: "earth" });
+      }
       const item = options[Math.floor(Math.random() * options.length)];
       const bit = document.createElement("button");
       bit.type = "button";
@@ -2028,6 +2268,8 @@
         mini.score += item.score;
         mini.taps += 1;
         change(item.delta);
+        if (item.scene) showScene(item.scene, "田中暴打地球", 1300);
+        if (item.unlock) unlock(item.unlock);
         playSound(item.kind === "good" ? "coin" : "poke");
         setTimeout(() => bit.remove(), 280);
       }, { once: true });
@@ -2069,6 +2311,58 @@
       });
     }
 
+    function renderShop() {
+      const grid = $("#shopGrid");
+      grid.innerHTML = "";
+      shopItems.forEach((item) => {
+        const owned = state.inventory.includes(item.id);
+        const row = document.createElement("div");
+        row.className = "shop-item";
+
+        const img = document.createElement("img");
+        img.src = item.img;
+        img.alt = item.name;
+        img.loading = "lazy";
+
+        const text = document.createElement("div");
+        const title = document.createElement("div");
+        title.className = "shop-title";
+        title.textContent = item.name;
+        const desc = document.createElement("div");
+        desc.className = "shop-desc";
+        desc.textContent = item.desc;
+        text.append(title, desc);
+
+        const button = document.createElement("button");
+        button.className = "buy-btn";
+        button.type = "button";
+        button.disabled = owned;
+        button.textContent = owned ? "已买" : item.price + "币";
+        button.addEventListener("click", () => buyShopItem(item.id));
+
+        row.append(img, text, button);
+        grid.appendChild(row);
+      });
+    }
+
+    function buyShopItem(id) {
+      const item = shopItems.find((entry) => entry.id === id);
+      if (!item || state.inventory.includes(id)) return;
+      if (!spendCoins(item.price)) {
+        renderShop();
+        return;
+      }
+      state.inventory.push(id);
+      if (id === "earthKit") unlock("earth");
+      if (id === "raincoat") unlock("badges");
+      say("买到了：" + item.name + "。田中说这不是消费，是精神维修。");
+      showScene(item.img, item.name, 1600);
+      playSound("coin");
+      change({ bond: 1, lively: 2 });
+      renderShop();
+      saveState();
+    }
+
     function openDrawer() {
       renderStickers();
       drawer.classList.add("open");
@@ -2078,6 +2372,17 @@
     function closeDrawer() {
       drawer.classList.remove("open");
       drawer.setAttribute("aria-hidden", "true");
+    }
+
+    function openShop() {
+      renderShop();
+      shopDrawer.classList.add("open");
+      shopDrawer.setAttribute("aria-hidden", "false");
+    }
+
+    function closeShop() {
+      shopDrawer.classList.remove("open");
+      shopDrawer.setAttribute("aria-hidden", "true");
     }
 
     function setRealTask() {
@@ -2120,12 +2425,16 @@
           if (action === "xiuzhen") actionXiuzhen();
           if (action === "xiaohe") actionXiaohe();
           if (action === "sleep") actionSleep();
+          if (action === "earth") actionEarth();
+          if (action === "friends") actionFriends();
           if (action === "mini") startMiniGame();
+          if (action === "shop") openShop();
           if (action === "stickers") openDrawer();
         });
       });
 
       $("#closeDrawer").addEventListener("click", closeDrawer);
+      $("#closeShop").addEventListener("click", closeShop);
       $("#realDone").addEventListener("click", completeRealTask);
       $("#weatherBtn").addEventListener("click", syncWeather);
       $("#soundBtn").addEventListener("click", () => {
@@ -2147,6 +2456,7 @@
       setRealTask();
       wireEvents();
       renderStickers();
+      renderShop();
       render();
       setInterval(updateClock, 1000 * 20);
       setInterval(timeTick, 1000 * 8);
