@@ -833,6 +833,14 @@
       stroke-linejoin: round;
     }
 
+    .tanaka-eye-line {
+      stroke-width: 5;
+    }
+
+    .mouth-small {
+      stroke-width: 5;
+    }
+
     .tear-mark path {
       fill: none;
       stroke: #4db7e9;
@@ -1612,19 +1620,21 @@
                   </g>
 
                   <g data-eye="soft">
-                    <path class="eye-line" d="M57 187 C63 192 70 192 76 187" />
-                    <path class="eye-line" d="M115 188 C121 193 129 193 135 188" />
+                    <path class="eye-line tanaka-eye-line" d="M57 188 L70 191" />
+                    <path class="eye-line tanaka-eye-line" d="M121 191 L134 188" />
                   </g>
                   <g data-mouth="soft">
-                    <path class="mouth-line" d="M69 247 C82 257 108 257 122 247" />
+                    <path class="mouth-line" d="M47 244 C73 241 113 242 139 244" />
+                    <path class="mouth-line mouth-small" d="M69 263 C84 262 107 263 122 264" />
                   </g>
 
                   <g data-eye="shock">
-                    <circle class="eye-dot" cx="64" cy="190" r="5.6" />
-                    <circle class="eye-dot" cx="127" cy="191" r="5.6" />
+                    <path class="eye-line tanaka-eye-line" d="M56 187 L70 192" />
+                    <path class="eye-line tanaka-eye-line" d="M121 192 L135 187" />
                   </g>
                   <g data-mouth="shock">
-                    <ellipse class="mouth-fill" cx="96" cy="247" rx="9" ry="14" />
+                    <path class="mouth-line" d="M45 245 C70 251 114 251 140 245" />
+                    <path class="mouth-line mouth-small" d="M70 267 C86 269 106 268 123 265" />
                   </g>
 
                   <g data-eye="sleep">
@@ -1632,7 +1642,8 @@
                     <path class="eye-line" d="M115 191 C121 196 129 196 135 191" />
                   </g>
                   <g data-mouth="sleep">
-                    <path class="mouth-line" d="M68 248 C82 254 108 254 122 248" />
+                    <path class="mouth-line" d="M48 246 C74 250 114 250 139 246" />
+                    <path class="mouth-line mouth-small" d="M70 265 C86 267 106 267 122 265" />
                   </g>
 
                   <g data-eye="angry">
@@ -1645,8 +1656,8 @@
                   </g>
 
                   <g data-eye="cry">
-                    <ellipse class="eye-dot" cx="64" cy="189" rx="4.8" ry="3.5" />
-                    <ellipse class="eye-dot" cx="127" cy="190" rx="4.8" ry="3.5" />
+                    <path class="eye-line tanaka-eye-line" d="M54 182 C61 190 71 193 80 188" />
+                    <path class="eye-line tanaka-eye-line" d="M137 182 C130 190 120 193 111 188" />
                   </g>
                   <g data-mouth="cry">
                     <ellipse class="mouth-fill" cx="96" cy="248" rx="10" ry="16" />
@@ -1751,7 +1762,7 @@
       { id: "work", name: "工位续命", img: "assets/tanaka-work.webp" },
       { id: "dead", name: "今日已下线", img: "assets/tanaka-dead.webp" },
       { id: "phone", name: "手机防御", img: "assets/tanaka-phone.webp" },
-      { id: "smile", name: "稀有微笑", img: "assets/tanaka-smile.webp" },
+      { id: "smile", name: "营业梗图", img: "assets/tanaka-smile.webp" },
       { id: "box", name: "盒装田中", img: "assets/tanaka-box.webp" },
       { id: "tv", name: "田中被采访", img: "assets/tanaka-tv.webp" },
       { id: "laptop", name: "电脑上班", img: "assets/tanaka-laptop.webp" },
@@ -1783,7 +1794,7 @@
     ];
 
     const shopItems = [
-      { id: "kettle", name: "热水壶", price: 6, img: "assets/tanaka-smile.webp", desc: "热水从 2 币降到 1 币。" },
+      { id: "kettle", name: "热水壶", price: 6, img: "assets/tanaka-phone.webp", desc: "热水从 2 币降到 1 币。" },
       { id: "quilt", name: "厚被窝", price: 8, img: "assets/tanaka-phone.webp", desc: "睡觉从 4 币降到 2 币，夜晚回体力更多。" },
       { id: "raincoat", name: "雨天防御", price: 7, img: "assets/friends-badges.webp", desc: "下雨时丧气上涨减半。" },
       { id: "earthKit", name: "备用地球", price: 10, img: "assets/tanaka-hammer-earth.webp", desc: "小游戏里会刷出“锤地球”奖励。" }
@@ -1793,7 +1804,7 @@
       pat: [
         "摸头有效，但田中坚持说这只是叶子养护。",
         "被顺毛了，丧气短暂离线。",
-        "田中没有笑，只是嘴角被生活绊了一下。"
+        "田中嘴角没动，但叶子接受了。"
       ],
       poke: [
         "戳到了。田中表示：这也算上班吗？",
@@ -2318,7 +2329,7 @@
       playSound("pat");
       vibrate(14);
       change({ gloom: -3, bond: 2, lively: 1 });
-      if (state.bond > 72 && state.gloom < 42) unlock("smile");
+      if (state.bond > 72 && state.gloom < 42) unlock("comicComfort");
     }
 
     function pokePet() {
@@ -2342,12 +2353,12 @@
     function actionWater() {
       if (!spendCoins(state.inventory.includes("kettle") ? 1 : 2)) return;
       setFace("soft", 1500);
-      showScene("assets/tanaka-smile.webp", "热水到账，田中短暂微笑", 1500);
+      showScene("assets/tanaka-phone.webp", "热水续命，田中暂时不断线", 1500);
       say(state.weather.kind === "rain" ? "雨天热水到账，田中的灵魂重新冒了一点热气。" : "热水到账，田中决定暂时不与世界同归于尽。");
       playSound("pat");
       pulse("is-patted", 560);
       change({ gloom: state.weather.kind === "rain" ? -9 : -6, energy: 8, bond: 2, lively: 1 });
-      unlock("smile");
+      unlock("phone");
     }
 
     function actionWork() {
