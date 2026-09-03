@@ -1194,17 +1194,29 @@
       line-height: 1.35;
     }
 
+    .life-note {
+      margin-top: 5px;
+      color: rgba(101, 84, 68, .78);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    body.theme-night .life-note {
+      color: rgba(251, 242, 229, .7);
+    }
+
     .drawer {
       position: fixed;
-      left: 50%;
+      left: 12px;
+      right: 12px;
       bottom: max(12px, env(safe-area-inset-bottom));
-      width: min(calc(100% - 24px), 520px);
+      width: auto;
       max-height: min(78svh, 610px);
       border: 1px solid rgba(36,31,27,.16);
       border-radius: 16px;
       background: rgba(255, 252, 244, .98);
       box-shadow: 0 20px 70px rgba(25, 18, 12, .28);
-      transform: translate(-50%, calc(100% + 22px));
+      transform: translateY(calc(100% + 22px));
       opacity: 0;
       pointer-events: none;
       transition: transform .24s ease, opacity .24s ease;
@@ -1213,9 +1225,22 @@
     }
 
     .drawer.open {
-      transform: translate(-50%, 0);
+      transform: translateY(0);
       opacity: 1;
       pointer-events: auto;
+    }
+
+    @media (min-width: 545px) {
+      .drawer {
+        left: 50%;
+        right: auto;
+        width: 520px;
+        transform: translate(-50%, calc(100% + 22px));
+      }
+
+      .drawer.open {
+        transform: translate(-50%, 0);
+      }
     }
 
     body.theme-night .drawer {
@@ -1279,8 +1304,7 @@
     }
 
     .shop-item {
-      display: grid;
-      grid-template-columns: 82px minmax(0, 1fr) auto;
+      display: flex;
       gap: 10px;
       align-items: center;
       min-height: 92px;
@@ -1291,6 +1315,7 @@
     }
 
     .shop-item img {
+      flex: 0 0 82px;
       width: 82px;
       height: 74px;
       object-fit: contain;
@@ -1309,7 +1334,14 @@
       line-height: 1.35;
     }
 
+    .shop-item > div {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
     .buy-btn {
+      align-self: flex-start;
+      margin-top: 7px;
       min-width: 58px;
       min-height: 40px;
       border: 1px solid rgba(36,31,27,.16);
@@ -1317,6 +1349,7 @@
       background: #fff4c8;
       font-weight: 900;
       padding: 0 8px;
+      white-space: nowrap;
     }
 
     body.theme-night .shop-item {
@@ -1379,6 +1412,19 @@
       .market-bag { left: 10px; transform-origin: 0 100%; }
       .speech { left: 10px; right: 10px; font-size: 13px; }
       .sticker-grid { grid-template-columns: repeat(2, 1fr); }
+      .shop-item {
+        gap: 8px;
+      }
+      .shop-item img {
+        flex-basis: 66px;
+        width: 66px;
+        height: 60px;
+      }
+      .buy-btn {
+        min-width: 54px;
+        padding: 0 5px;
+        font-size: 12px;
+      }
     }
 
     @keyframes cloudFloat {
@@ -1759,6 +1805,7 @@
       <button class="action-btn" type="button" data-action="sleep">被窝<small id="sleepSmall">4币</small></button>
       <button class="action-btn" type="button" data-action="earth">锤地球<small>经典</small></button>
       <button class="action-btn" type="button" data-action="friends">朋友来访<small>随机</small></button>
+      <button class="action-btn" type="button" data-action="event">随机日常<small>事件</small></button>
       <button class="action-btn" type="button" data-action="mini">清理无聊<small id="miniSmall">小游戏</small></button>
       <button class="action-btn" type="button" data-action="shop">商店<small>道具</small></button>
       <button class="action-btn" type="button" data-action="stickers">表情抽屉<small>收藏</small></button>
@@ -1768,6 +1815,7 @@
       <div>
         <div class="value-title">今日现实补给</div>
         <div class="value-note" id="realTask">把明天要带的东西放到门口，田中给你记一枚币。</div>
+        <div class="life-note" id="lifeNote">田中正在低功耗营业。</div>
       </div>
       <button class="small-btn" id="realDone" type="button">完成</button>
     </section>
@@ -1832,17 +1880,25 @@
     ];
 
     const shopItems = [
-      { id: "kettle", name: "热水壶", price: 6, img: "assets/tanaka-phone.webp", desc: "热水从 2 币降到 1 币。" },
-      { id: "quilt", name: "厚被窝", price: 8, img: "assets/tanaka-phone.webp", desc: "睡觉从 4 币降到 2 币，夜晚回体力更多。" },
-      { id: "raincoat", name: "雨天防御", price: 7, img: "assets/friends-badges.webp", desc: "下雨时丧气上涨减半。" },
-      { id: "earthKit", name: "备用地球", price: 10, img: "assets/tanaka-hammer-earth.webp", desc: "小游戏里会刷出“锤地球”奖励。" }
+      { id: "kettle", kind: "permanent", name: "热水壶", price: 6, img: "assets/tanaka-phone.webp", desc: "热水从 2 币降到 1 币。" },
+      { id: "quilt", kind: "permanent", name: "厚被窝", price: 8, img: "assets/tanaka-phone.webp", desc: "睡觉从 4 币降到 2 币，夜晚回体力更多。" },
+      { id: "raincoat", kind: "permanent", name: "雨天防御", price: 7, img: "assets/friends-badges.webp", desc: "下雨时丧气上涨变慢。" },
+      { id: "earthKit", kind: "permanent", name: "地球替身包", price: 10, img: "assets/tanaka-hammer-earth.webp", desc: "小游戏里会刷出锤地球奖励。" },
+      { id: "deskMat", kind: "permanent", name: "工位靠垫", price: 9, img: "assets/tanaka-work.webp", desc: "去工位少掉体力，少涨丧气。" },
+      { id: "fishPhone", kind: "permanent", name: "摸鱼手机壳", price: 11, img: "assets/tanaka-phone.webp", desc: "小游戏多刷摸鱼和萝卜币。" },
+      { id: "xiuzhenSticker", kind: "permanent", name: "秀珍贴纸", price: 12, img: "assets/tanaka-xiuzhen-fan.webp", desc: "丧气过高时更容易触发安慰事件。" },
+      { id: "xiaoheCoupon", kind: "permanent", name: "小河外卖券", price: 8, img: "assets/xiaohe.webp", desc: "小河互动多回一点活性和币。" },
+      { id: "lipuAlarm", kind: "permanent", name: "厘普闹钟", price: 10, img: "assets/lipu.webp", desc: "白天体力下降慢一点。" },
+      { id: "riceBall", kind: "consumable", name: "便利店饭团", price: 3, img: "assets/tanaka-box.webp", desc: "立即回体力，少一点丧气。", delta: { energy: 12, gloom: -2, lively: 1 }, face: "accept", line: "便利店饭团到账，田中承认碳水确实有用。" },
+      { id: "warmPatch", kind: "consumable", name: "暖手贴", price: 2, img: "assets/friends-badges.webp", desc: "立即降丧，下雨天额外有效。", delta: { energy: 3, gloom: -3, bond: 1 }, face: "flat", line: "暖手贴贴上，田中暂停和世界硬碰硬。" },
+      { id: "spareEarth", kind: "consumable", name: "一次性地球", price: 4, img: "assets/tanaka-hammer-earth.webp", desc: "立刻触发锤地球，清掉一截无聊。", delta: { gloom: -6, lively: 6, energy: -2 }, face: "earth", scene: "assets/tanaka-hammer-earth.webp", unlock: "earth", line: "备用地球消耗，田中把今天的无聊砸了一下。" }
     ];
 
     const lines = {
       pat: [
         "摸头有效，但田中坚持说这只是叶子养护。",
         "被顺毛了，丧气短暂离线。",
-        "田中嘴角没动，但叶子接受了。"
+        "田中没表示，但叶子接受了。"
       ],
       poke: [
         "戳到了。田中表示：这也算上班吗？",
@@ -1882,6 +1938,18 @@
       "躺下前把充电器插好，明早少骂世界一次。"
     ];
 
+    const dailyEvents = [
+      { title: "主管弹窗", kind: "bad", line: "主管发来一条没头没尾的消息，田中原地折旧。", img: "assets/tanaka-work.webp", face: "eventBad", delta: { gloom: 5, energy: -4, lively: -2, coins: 2 }, unlock: "work" },
+      { title: "便利店补货", kind: "good", line: "便利店饭团刚补货，田中决定相信一次碳水。", img: "assets/tanaka-box.webp", face: "eventGood", delta: { energy: 7, gloom: -2, coins: -1 }, unlock: "box" },
+      { title: "秀珍巡逻", kind: "good", line: "秀珍路过，把田中从内耗边缘拽回来一点。", img: "assets/tanaka-xiuzhen-fan.webp", face: "xiuzhen", delta: { gloom: -7, bond: 5, energy: 2 }, unlock: "xiuzhenFan", needs: "gloom" },
+      { title: "小河叼走", kind: "wild", line: "小河把田中叼去转了一圈，烦恼被风吹散一截。", img: "assets/tanaka-xiaohe-bite.webp", face: "xiaohe", delta: { gloom: -4, lively: 8, energy: -4, coins: 1 }, unlock: "xiaoheBite" },
+      { title: "厘普发疯巡逻", kind: "wild", line: "暹罗厘普发疯巡逻，田中被迫离开待机状态。", img: "assets/lipu.webp", face: "bag", delta: { lively: 8, energy: -2, gloom: -1 }, unlock: "lipu" },
+      { title: "多栋点头", kind: "good", line: "多栋说好。田中没懂，但萝卜币懂了。", img: "assets/duodong.webp", face: "friends", delta: { coins: 2, lively: 3, gloom: -1 }, unlock: "duodong" },
+      { title: "锤爆地球预备", kind: "wild", line: "地球替身露头，田中的无聊被敲掉一块。", img: "assets/tanaka-hammer-earth.webp", face: "earth", delta: { gloom: -6, lively: 7, energy: -3 }, unlock: "earth", needsItem: "earthKit" },
+      { title: "工牌卡住", kind: "bad", line: "工牌卡住了。田中站在原地，灵魂先下班。", img: "assets/tanaka-shirt.webp", face: "eventBad", delta: { gloom: 4, energy: -3, coins: 1 }, unlock: "shirt" },
+      { title: "盒装待机", kind: "good", line: "田中躲进盒子里，世界音量降低了一点。", img: "assets/tanaka-box.webp", face: "eventGood", delta: { gloom: -3, energy: 4, lively: -1 }, unlock: "box" }
+    ];
+
     const faceSets = {
       pat: ["accept", "annoyed", "wilt"],
       poke: ["annoyed", "panic", "flat"],
@@ -1896,7 +1964,10 @@
       earth: ["angry", "cry"],
       friends: ["annoyed", "flat", "accept"],
       miniGood: ["accept", "sad", "flat"],
-      miniBad: ["annoyed", "wilt", "cry"]
+      miniBad: ["annoyed", "wilt", "cry"],
+      eventBad: ["wilt", "flat", "cry", "annoyed"],
+      eventGood: ["accept", "sad", "flat"],
+      eventPanic: ["panic", "shock", "angry"]
     };
 
     const defaultState = {
@@ -1910,6 +1981,11 @@
       completedTasks: {},
       weather: { kind: "sunny", label: "本地晴", temp: null, updatedAt: 0 },
       sound: false,
+      careStreak: 0,
+      lastDailyReward: "",
+      lastAutoEventAt: 0,
+      spentCoins: 0,
+      lifeNote: "田中正在低功耗营业。",
       lastTick: Date.now()
     };
 
@@ -1926,6 +2002,7 @@
     const drawer = $("#drawer");
     const shopDrawer = $("#shopDrawer");
     const toast = $("#toast");
+    const lifeNote = $("#lifeNote");
     let audioCtx = null;
     let toastTimer = 0;
     let actionTimer = 0;
@@ -1955,6 +2032,48 @@
     function saveState() {
       state.lastTick = Date.now();
       localStorage.setItem(storeKey, JSON.stringify(state));
+    }
+
+    function hasItem(id) {
+      return state.inventory.includes(id);
+    }
+
+    function dateKey(date = new Date()) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function setLifeNote(text, shouldSave = false) {
+      state.lifeNote = text;
+      if (lifeNote) lifeNote.textContent = text;
+      if (shouldSave) saveState();
+    }
+
+    function signed(value) {
+      const rounded = Math.round(value * 10) / 10;
+      if (rounded > 0) return "+" + rounded;
+      return String(rounded);
+    }
+
+    function trendText(delta) {
+      const parts = [];
+      if (delta.gloom) parts.push("丧气" + signed(delta.gloom));
+      if (delta.energy) parts.push("体力" + signed(delta.energy));
+      if (delta.bond) parts.push("亲密" + signed(delta.bond));
+      if (delta.lively) parts.push("活性" + signed(delta.lively));
+      if (delta.coins) parts.push("币" + signed(delta.coins));
+      return parts.length ? parts.join(" / ") : "状态维持";
+    }
+
+    function routineName(phase = currentPhase()) {
+      return {
+        morning: "通勤低电量",
+        day: "工位损耗",
+        evening: "下班回血",
+        night: "夜间低功耗"
+      }[phase] || "低功耗营业";
     }
 
     function randomLine(list) {
@@ -2097,11 +2216,12 @@
       setBar("lively", state.lively);
       $("#coinText").textContent = Math.round(state.coins);
       const unlockedVisible = stickers.filter((item) => state.unlocked.includes(item.id)).length;
-      $("#rewardText").textContent = "奖励 " + unlockedVisible + "/" + stickers.length;
-      $("#waterSmall").textContent = (state.inventory.includes("kettle") ? 1 : 2) + "币";
-      $("#sleepSmall").textContent = (state.inventory.includes("quilt") ? 2 : 4) + "币";
+      $("#rewardText").textContent = "奖励 " + unlockedVisible + "/" + stickers.length + " · " + (state.careStreak || 0) + "天";
+      $("#waterSmall").textContent = (hasItem("kettle") ? 1 : 2) + "币";
+      $("#sleepSmall").textContent = (hasItem("quilt") ? 2 : 4) + "币";
       $("#soundBtn").textContent = state.sound ? "静" : "声";
       $("#weatherLabel").textContent = weatherText();
+      if (lifeNote) lifeNote.textContent = state.lifeNote || "田中正在低功耗营业。";
       updateClock();
     }
 
@@ -2201,31 +2321,93 @@
     }
 
     function applyOfflineTime() {
-      const elapsed = Math.min(Date.now() - (state.lastTick || Date.now()), 1000 * 60 * 60 * 10);
-      const halfHours = Math.floor(elapsed / (1000 * 60 * 30));
-      if (halfHours <= 0) return;
-      const phase = currentPhase();
-      change({
-        gloom: halfHours * (phase === "night" ? -0.6 : 0.9),
-        energy: halfHours * (phase === "night" ? 1.2 : -0.7),
-        lively: halfHours * -0.4
-      });
+      const start = state.lastTick || Date.now();
+      const elapsed = Math.min(Date.now() - start, 1000 * 60 * 60 * 12);
+      const chunks = Math.floor(elapsed / (1000 * 60 * 10));
+      if (chunks <= 0) return;
+      const delta = { gloom: 0, energy: 0, lively: 0 };
+      for (let i = 1; i <= chunks; i++) {
+        const stepPhase = currentPhase(new Date(start + i * 1000 * 60 * 10));
+        delta.gloom += stepPhase === "night" ? -0.42 : stepPhase === "evening" ? 0.18 : 0.48;
+        delta.energy += stepPhase === "night" ? 0.85 : -0.42;
+        delta.lively += stepPhase === "evening" ? 0.12 : -0.22;
+        if (hasItem("deskMat") && stepPhase === "day") {
+          delta.gloom -= 0.18;
+          delta.energy += 0.16;
+        }
+        if (hasItem("lipuAlarm") && stepPhase !== "night") delta.energy += 0.14;
+        if (hasItem("fishPhone")) delta.lively += 0.12;
+      }
+      if (hasItem("raincoat") && state.weather.kind === "rain") delta.gloom -= chunks * 0.22;
+      if (state.weather.kind === "rain") delta.gloom += chunks * 0.18;
+      if (state.weather.kind === "snow") delta.energy -= chunks * 0.12;
+      change(delta);
+      const mins = Math.floor(elapsed / 60000);
+      setLifeNote("离线 " + mins + " 分钟，按现实时间结算：" + trendText(delta), true);
+      if (Math.abs(delta.gloom) > 5) setRandomFace(delta.gloom > 0 ? "eventBad" : "eventGood", 1500);
     }
 
     function timeTick() {
       const phase = currentPhase();
       const weather = state.weather.kind;
       const delta = {
-        gloom: phase === "night" ? -0.08 : phase === "day" ? 0.14 : 0.04,
-        energy: phase === "night" ? 0.15 : -0.08,
-        lively: phase === "day" ? -0.03 : 0.04
+        gloom: phase === "night" ? -0.18 : phase === "day" ? 0.34 : phase === "evening" ? 0.08 : 0.2,
+        energy: phase === "night" ? 0.34 : phase === "morning" ? -0.16 : -0.22,
+        lively: phase === "evening" ? 0.12 : phase === "day" ? -0.1 : 0.04
       };
-      if (weather === "rain") delta.gloom += state.inventory.includes("raincoat") ? 0.03 : 0.08;
-      if (weather === "sunny") delta.lively += 0.07;
-      if (weather === "fog") delta.energy -= 0.04;
+      if (hasItem("deskMat") && phase === "day") {
+        delta.gloom -= 0.12;
+        delta.energy += 0.08;
+      }
+      if (hasItem("lipuAlarm") && phase !== "night") delta.energy += 0.08;
+      if (hasItem("fishPhone")) delta.lively += 0.08;
+      if (state.energy < 25) delta.gloom += 0.16;
+      if (state.bond > 60) delta.gloom -= 0.06;
+      if (weather === "rain") delta.gloom += hasItem("raincoat") ? 0.05 : 0.18;
+      if (weather === "sunny") delta.lively += 0.08;
+      if (weather === "cloudy") delta.gloom += 0.04;
+      if (weather === "fog") delta.energy -= 0.08;
+      if (weather === "snow") {
+        delta.gloom += 0.06;
+        delta.energy -= 0.06;
+      }
       change(delta);
+      setLifeNote(routineName(phase) + " · " + weatherText() + " · " + trendText(delta), true);
       if (weather === "rain" && Math.random() < .18) say(randomLine(lines.rain));
       if (phase === "night" && Math.random() < .12) say(randomLine(lines.night));
+      maybeAutoEvent(phase);
+    }
+
+    function eventAllowed(event) {
+      if (event.needsItem && !hasItem(event.needsItem)) return false;
+      if (event.needs === "gloom" && state.gloom < 58) return false;
+      return true;
+    }
+
+    function runDailyEvent(event, prefix = "随机日常") {
+      if (!event) return;
+      if (event.img) showScene(event.img, event.title, 1800);
+      if (faceSets[event.face]) setRandomFace(event.face, 1600);
+      else setFace(event.face || "flat", 1600);
+      say(event.line);
+      playSound(event.kind === "good" ? "coin" : event.kind === "bad" ? "poke" : "swoop");
+      change(event.delta);
+      if (event.unlock) unlock(event.unlock);
+      if (event.unlock === "xiaoheBite") unlock("xiaohe");
+      setLifeNote(prefix + "：" + event.title + " · " + trendText(event.delta), true);
+    }
+
+    function maybeAutoEvent(phase = currentPhase()) {
+      const now = Date.now();
+      if (now - (state.lastAutoEventAt || 0) < 48000) return;
+      let chance = phase === "night" ? 0.08 : 0.14;
+      if (state.gloom > 76 || state.energy < 24) chance += 0.16;
+      if (hasItem("xiuzhenSticker") && state.gloom > 60) chance += 0.1;
+      if (hasItem("fishPhone") && phase === "day") chance += 0.04;
+      if (Math.random() > chance) return;
+      const pool = dailyEvents.filter(eventAllowed);
+      state.lastAutoEventAt = now;
+      runDailyEvent(randomLine(pool), "突发");
     }
 
     function enableSound() {
@@ -2412,7 +2594,7 @@
     }
 
     function actionWater() {
-      if (!spendCoins(state.inventory.includes("kettle") ? 1 : 2)) return;
+      if (!spendCoins(hasItem("kettle") ? 1 : 2)) return;
       setRandomFace("water", 1500);
       showScene("assets/tanaka-phone.webp", "热水续命，田中暂时不断线", 1500);
       say(state.weather.kind === "rain" ? "雨天热水到账，田中的灵魂重新冒了一点热气。" : "热水到账，田中决定暂时不与世界同归于尽。");
@@ -2433,9 +2615,16 @@
       showScene(scene.src, scene.caption, 1900);
       playAction("act-work", 1700);
       setRandomFace("work", 1700);
-      say("工位出现。田中敲了几下键盘，收入到账，精神轻微折旧。");
+      const hasMat = hasItem("deskMat");
+      const hasPhone = hasItem("fishPhone");
+      say(hasMat ? "工位出现。靠垫挡住一部分现实伤害，收入照常到账。" : "工位出现。田中敲了几下键盘，收入到账，精神轻微折旧。");
       playSound("coin");
-      change({ coins: 5, gloom: 6, energy: -9, lively: -2 });
+      change({
+        coins: hasPhone ? 6 : 5,
+        gloom: hasMat ? 3 : 6,
+        energy: hasMat ? -5 : -9,
+        lively: hasPhone ? 0 : -2
+      });
       unlock("work");
       unlock(scene.id);
     }
@@ -2480,9 +2669,15 @@
       showScene(scene.src, scene.caption, 1600);
       playAction("act-xiaohe", 1300);
       setRandomFace("xiaohe", 1400);
-      say("小河路过，把田中叼走冷静了一圈，又原样送回来了。");
+      const hasCoupon = hasItem("xiaoheCoupon");
+      say(hasCoupon ? "小河路过，外卖券生效：田中被叼走，回来还多带一点补给。" : "小河路过，把田中叼走冷静了一圈，又原样送回来了。");
       playSound("swoop");
-      change({ gloom: -3, lively: 8, energy: -5, coins: 1 });
+      change({
+        gloom: hasCoupon ? -5 : -3,
+        lively: hasCoupon ? 10 : 8,
+        energy: hasCoupon ? -3 : -5,
+        coins: hasCoupon ? 2 : 1
+      });
       unlock("xiaohe");
       unlock(scene.id);
     }
@@ -2517,8 +2712,18 @@
       if (friend.id === "lipu") unlock("lipu");
     }
 
+    function actionEvent() {
+      const pool = dailyEvents.filter(eventAllowed);
+      const weighted = pool.slice();
+      if (state.gloom > 68) weighted.push(...pool.filter((event) => event.kind === "good"));
+      if (state.energy < 30) weighted.push(...pool.filter((event) => event.title.includes("便利店") || event.title.includes("盒装")));
+      runDailyEvent(randomLine(weighted), "随机日常");
+      state.lastAutoEventAt = Date.now();
+      saveState();
+    }
+
     function actionSleep() {
-      const hasQuilt = state.inventory.includes("quilt");
+      const hasQuilt = hasItem("quilt");
       if (!spendCoins(hasQuilt ? 2 : 4)) return;
       showProp($("#blanketProp"), 2200);
       showScene("assets/tanaka-phone.webp", "被窝里的田中开始手机防御", 2100);
@@ -2555,7 +2760,14 @@
         { label: "返工", kind: "bad", delta: { gloom: 3, energy: -1 }, score: -1 },
         { label: "热水", kind: "good", delta: { energy: 2, gloom: -1 }, score: 1 }
       ];
-      if (state.inventory.includes("earthKit")) {
+      if (hasItem("fishPhone")) {
+        options.push(
+          { label: "摸鱼", kind: "good", delta: { lively: 3, gloom: -2, coins: 1 }, score: 2 },
+          { label: "已读不回", kind: "good", delta: { gloom: -1, energy: 1 }, score: 1 },
+          { label: "+2币", kind: "good", delta: { coins: 2 }, score: 2 }
+        );
+      }
+      if (hasItem("earthKit")) {
         options.push({ label: "地球", kind: "good", delta: { gloom: -4, lively: 4, coins: 1 }, score: 3, scene: "assets/tanaka-hammer-earth.webp", unlock: "earth" });
       }
       const item = options[Math.floor(Math.random() * options.length)];
@@ -2587,9 +2799,11 @@
       clearInterval(mini.spawner);
       clearTimeout(mini.closer);
       const score = mini.score;
-      const bonus = Math.max(1, Math.floor(Math.max(0, score) / 2));
-      change({ coins: bonus, energy: -5, bond: 2, lively: 5 });
+      const bonus = Math.max(1, Math.floor(Math.max(0, score) / (hasItem("fishPhone") ? 1.7 : 2)));
+      const energyCost = hasItem("lipuAlarm") ? -3 : -5;
+      change({ coins: bonus, energy: energyCost, bond: 2, lively: 5 });
       say("无聊清理结束，田中结算：" + bonus + "枚萝卜币，精神噪音少了一点。");
+      setLifeNote("小游戏结算：币+" + bonus + " / 体力" + energyCost + " / 活性+5", true);
       if (mini.taps >= 10) unlock("phone");
       if (score >= 8) unlock("meme");
       miniLayer.innerHTML = "";
@@ -2620,7 +2834,7 @@
       const grid = $("#shopGrid");
       grid.innerHTML = "";
       shopItems.forEach((item) => {
-        const owned = state.inventory.includes(item.id);
+        const owned = item.kind !== "consumable" && hasItem(item.id);
         const row = document.createElement("div");
         row.className = "shop-item";
 
@@ -2645,25 +2859,48 @@
         button.textContent = owned ? "已买" : item.price + "币";
         button.addEventListener("click", () => buyShopItem(item.id));
 
-        row.append(img, text, button);
+        text.appendChild(button);
+        row.append(img, text);
         grid.appendChild(row);
       });
     }
 
     function buyShopItem(id) {
       const item = shopItems.find((entry) => entry.id === id);
-      if (!item || state.inventory.includes(id)) return;
+      if (!item || item.kind !== "consumable" && hasItem(id)) return;
       if (!spendCoins(item.price)) {
+        renderShop();
+        return;
+      }
+      state.spentCoins = (state.spentCoins || 0) + item.price;
+      if (item.kind === "consumable") {
+        const delta = { ...(item.delta || {}) };
+        if (id === "warmPatch" && state.weather.kind === "rain") delta.gloom -= 2;
+        if (item.scene) showScene(item.scene, item.name, 1700);
+        else showScene(item.img, item.name, 1500);
+        if (faceSets[item.face]) setRandomFace(item.face, 1500);
+        else setFace(item.face || "flat", 1500);
+        say(item.line || "道具用掉了，田中状态发生了一点现实变化。");
+        playSound("coin");
+        change(delta);
+        if (item.unlock) unlock(item.unlock);
+        setLifeNote("商店使用：" + item.name + " · " + trendText(delta), true);
         renderShop();
         return;
       }
       state.inventory.push(id);
       if (id === "earthKit") unlock("earth");
       if (id === "raincoat") unlock("badges");
-      say("买到了：" + item.name + "。田中说这不是消费，是精神维修。");
+      if (id === "deskMat") unlock("work");
+      if (id === "fishPhone") unlock("phone");
+      if (id === "xiuzhenSticker") unlock("xiuzhenFan");
+      if (id === "xiaoheCoupon") unlock("xiaohe");
+      if (id === "lipuAlarm") unlock("lipu");
+      say("买到了：" + item.name + "。以后它会真的影响田中的日常。");
       showScene(item.img, item.name, 1600);
       playSound("coin");
       change({ bond: 1, lively: 2 });
+      setLifeNote("商店升级：" + item.name + " 已生效，累计花掉 " + state.spentCoins + " 枚币。", true);
       renderShop();
       saveState();
     }
@@ -2691,7 +2928,7 @@
     }
 
     function setRealTask() {
-      const today = new Date().toISOString().slice(0, 10);
+      const today = dateKey();
       const index = Math.abs(today.split("-").join("") * 1) % realTasks.length;
       $("#realTask").textContent = realTasks[index];
       $("#realDone").disabled = Boolean(state.completedTasks[today]);
@@ -2699,13 +2936,27 @@
     }
 
     function completeRealTask() {
-      const today = new Date().toISOString().slice(0, 10);
+      const today = dateKey();
       if (state.completedTasks[today]) return;
       state.completedTasks[today] = true;
       say("现实补给已打勾。田中承认，这个确实有点用。");
       playSound("coin");
       change({ coins: 3, energy: 4, gloom: -3, bond: 1 });
+      setLifeNote("今日现实补给完成：币+3 / 体力+4 / 丧气-3", true);
       setRealTask();
+    }
+
+    function grantDailyVisit() {
+      const today = dateKey();
+      if (state.lastDailyReward === today) return;
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const keptStreak = state.lastDailyReward === dateKey(yesterday);
+      state.careStreak = keptStreak ? (state.careStreak || 0) + 1 : 1;
+      const bonus = Math.min(5, 1 + Math.floor(state.careStreak / 2));
+      state.lastDailyReward = today;
+      change({ coins: bonus, bond: 1, energy: 2 });
+      setLifeNote("今日打开奖励：萝卜币+" + bonus + "，连续照顾 " + state.careStreak + " 天。", true);
     }
 
     function applyPreviewFace() {
@@ -2738,6 +2989,7 @@
           if (action === "sleep") actionSleep();
           if (action === "earth") actionEarth();
           if (action === "friends") actionFriends();
+          if (action === "event") actionEvent();
           if (action === "mini") startMiniGame();
           if (action === "shop") openShop();
           if (action === "stickers") openDrawer();
@@ -2764,12 +3016,14 @@
       fallbackWeather();
       setupWeatherParticles();
       applyOfflineTime();
+      grantDailyVisit();
       setRealTask();
       wireEvents();
       renderStickers();
       renderShop();
       render();
       applyPreviewFace();
+      if (new URLSearchParams(location.search).has("shop")) openShop();
       setInterval(updateClock, 1000 * 20);
       setInterval(timeTick, 1000 * 8);
       window.addEventListener("beforeunload", saveState);
