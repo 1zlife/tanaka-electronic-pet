@@ -936,6 +936,14 @@
 
     .pet[data-face="flat"] [data-mouth="flat"],
     .pet[data-face="flat"] [data-eye="flat"],
+    .pet[data-face="accept"] [data-mouth="accept"],
+    .pet[data-face="accept"] [data-eye="accept"],
+    .pet[data-face="annoyed"] [data-mouth="annoyed"],
+    .pet[data-face="annoyed"] [data-eye="annoyed"],
+    .pet[data-face="wilt"] [data-mouth="wilt"],
+    .pet[data-face="wilt"] [data-eye="wilt"],
+    .pet[data-face="panic"] [data-mouth="panic"],
+    .pet[data-face="panic"] [data-eye="panic"],
     .pet[data-face="shock"] [data-mouth="shock"],
     .pet[data-face="shock"] [data-eye="shock"],
     .pet[data-face="sleep"] [data-mouth="sleep"],
@@ -945,6 +953,10 @@
     .pet[data-face="cry"] [data-mouth="cry"],
     .pet[data-face="cry"] [data-eye="cry"],
     .pet[data-face="flat"] .face-patch,
+    .pet[data-face="accept"] .face-patch,
+    .pet[data-face="annoyed"] .face-patch,
+    .pet[data-face="wilt"] .face-patch,
+    .pet[data-face="panic"] .face-patch,
     .pet[data-face="shock"] .face-patch,
     .pet[data-face="sleep"] .face-patch,
     .pet[data-face="angry"] .face-patch,
@@ -953,6 +965,8 @@
     .pet[data-face="cry"] .tear-mark,
     .pet[data-face="angry"] .tear-mark,
     .pet[data-face="shock"] .sweat-mark,
+    .pet[data-face="annoyed"] .sweat-mark,
+    .pet[data-face="panic"] .sweat-mark,
     .pet[data-face="angry"] .anger-mark {
       display: block;
     }
@@ -1616,6 +1630,42 @@
                     <path class="mouth-line" d="M46 250 L140 250" />
                   </g>
 
+                  <g data-eye="accept">
+                    <path class="eye-line tanaka-eye-line" d="M57 190 L70 190" />
+                    <path class="eye-line tanaka-eye-line" d="M121 191 L134 191" />
+                  </g>
+                  <g data-mouth="accept">
+                    <path class="mouth-line" d="M46 244 C72 239 114 239 140 244" />
+                    <path class="mouth-line mouth-small" d="M69 264 L122 264" />
+                  </g>
+
+                  <g data-eye="annoyed">
+                    <path class="eye-line tanaka-eye-line" d="M55 187 L72 192" />
+                    <path class="eye-line tanaka-eye-line" d="M118 192 L136 187" />
+                  </g>
+                  <g data-mouth="annoyed">
+                    <path class="mouth-line" d="M47 249 L140 245" />
+                    <path class="mouth-line mouth-small" d="M70 268 L122 264" />
+                  </g>
+
+                  <g data-eye="wilt">
+                    <path class="eye-line tanaka-eye-line" d="M56 193 L72 197" />
+                    <path class="eye-line tanaka-eye-line" d="M119 197 L135 193" />
+                  </g>
+                  <g data-mouth="wilt">
+                    <path class="mouth-line" d="M47 253 C73 235 115 235 141 253" />
+                    <path class="mouth-line mouth-small" d="M70 274 C85 268 106 268 122 274" />
+                  </g>
+
+                  <g data-eye="panic">
+                    <path class="eye-line tanaka-eye-line" d="M55 185 L73 193" />
+                    <path class="eye-line tanaka-eye-line" d="M119 193 L137 185" />
+                  </g>
+                  <g data-mouth="panic">
+                    <path class="mouth-line" d="M47 249 L63 240 L82 246 L101 237 L122 246 L141 249" />
+                    <path class="mouth-line mouth-small" d="M70 270 L123 270" />
+                  </g>
+
                   <g data-eye="shock">
                     <path class="eye-line tanaka-eye-line" d="M56 187 L70 192" />
                     <path class="eye-line tanaka-eye-line" d="M121 192 L135 187" />
@@ -1832,6 +1882,23 @@
       "躺下前把充电器插好，明早少骂世界一次。"
     ];
 
+    const faceSets = {
+      pat: ["accept", "annoyed", "wilt"],
+      poke: ["annoyed", "panic", "flat"],
+      feet: ["flat", "annoyed", "wilt"],
+      grab: ["panic", "shock", "wilt"],
+      drop: ["flat", "annoyed", "wilt"],
+      water: ["accept", "flat", "wilt"],
+      work: ["wilt", "flat", "cry"],
+      bag: ["panic", "shock", "wilt"],
+      xiuzhen: ["accept", "wilt", "sad"],
+      xiaohe: ["panic", "shock", "angry"],
+      earth: ["angry", "cry"],
+      friends: ["annoyed", "flat", "accept"],
+      miniGood: ["accept", "sad", "flat"],
+      miniBad: ["annoyed", "wilt", "cry"]
+    };
+
     const defaultState = {
       gloom: 58,
       energy: 62,
@@ -1995,6 +2062,10 @@
         faceHoldUntil = 0;
         render();
       }, duration);
+    }
+
+    function setRandomFace(group, duration = 1200) {
+      setFace(randomLine(faceSets[group] || ["sad"]), duration);
     }
 
     function currentPhase(date = new Date()) {
@@ -2226,7 +2297,7 @@
         width: rect.width
       };
       pet.classList.add("is-dragging", "grab-" + drag.grabSide);
-      setFace("shock", 2400);
+      setRandomFace("grab", 2400);
       vibrate(10);
     }
 
@@ -2297,6 +2368,7 @@
       } else {
         const fling = Math.abs(drag.vx) + Math.abs(drag.vy);
         say(randomLine(lines.drop));
+        setRandomFace("drop", 900);
         playSound("drop");
         change({ lively: 2, bond: .8, gloom: -.6 });
         if (fling > 1.35) {
@@ -2313,7 +2385,7 @@
 
     function patPet() {
       pulse("is-patted", 560);
-      setFace("sad", 900);
+      setRandomFace("pat", 950);
       say(randomLine(lines.pat));
       playSound("pat");
       vibrate(14);
@@ -2323,7 +2395,7 @@
 
     function pokePet() {
       pulse("is-poked", 460);
-      setFace("shock", 1000);
+      setRandomFace("poke", 1000);
       say(randomLine(lines.poke));
       playSound("poke");
       vibrate(18);
@@ -2332,7 +2404,7 @@
 
     function footPet() {
       pulse("is-feet", 480);
-      setFace("flat", 1000);
+      setRandomFace("feet", 1000);
       say(randomLine(lines.feet));
       playSound("coin");
       vibrate(12);
@@ -2341,7 +2413,7 @@
 
     function actionWater() {
       if (!spendCoins(state.inventory.includes("kettle") ? 1 : 2)) return;
-      setFace("flat", 1500);
+      setRandomFace("water", 1500);
       showScene("assets/tanaka-phone.webp", "热水续命，田中暂时不断线", 1500);
       say(state.weather.kind === "rain" ? "雨天热水到账，田中的灵魂重新冒了一点热气。" : "热水到账，田中决定暂时不与世界同归于尽。");
       playSound("pat");
@@ -2360,7 +2432,7 @@
       ]);
       showScene(scene.src, scene.caption, 1900);
       playAction("act-work", 1700);
-      setFace("flat", 1700);
+      setRandomFace("work", 1700);
       say("工位出现。田中敲了几下键盘，收入到账，精神轻微折旧。");
       playSound("coin");
       change({ coins: 5, gloom: 6, energy: -9, lively: -2 });
@@ -2376,7 +2448,7 @@
       ]);
       showScene(scene.src, scene.caption, 1700);
       playAction("act-bag", 1450);
-      setFace("shock", 1500);
+      setRandomFace("bag", 1500);
       say("超市袋出现。田中想起自己死里逃生，跑得比周一还快。");
       playSound("swoop");
       change({ gloom: 4, energy: -4, lively: 6, coins: 2 });
@@ -2391,7 +2463,7 @@
         { src: "assets/lipu-comic-comfort.webp", caption: "必要时，朋友会把你拉回来", id: "comicComfort" }
       ]);
       showScene(scene.src, scene.caption, 1900);
-      setFace("sad", 1700);
+      setRandomFace("xiuzhen", 1700);
       say("秀珍来了，夸田中今天已经很努力了。田中嘴硬，但亲密值涨了。");
       playSound("pat");
       change({ gloom: -8, bond: 7, energy: 2 });
@@ -2407,7 +2479,7 @@
       ]);
       showScene(scene.src, scene.caption, 1600);
       playAction("act-xiaohe", 1300);
-      setFace("shock", 1400);
+      setRandomFace("xiaohe", 1400);
       say("小河路过，把田中叼走冷静了一圈，又原样送回来了。");
       playSound("swoop");
       change({ gloom: -3, lively: 8, energy: -5, coins: 1 });
@@ -2419,7 +2491,7 @@
       showScene("assets/tanaka-hammer-earth.webp", "田中：我要打爆一切，尤其是无聊", 1900);
       playAction("act-bag", 900);
       pulse("is-shaken", 560);
-      setFace("angry", 1700);
+      setRandomFace("earth", 1700);
       say("锤爆地球触发。现实不能砸，先把无聊砸一下。");
       playSound("swoop");
       vibrate(22);
@@ -2430,13 +2502,13 @@
     function actionFriends() {
       const friend = randomLine(friendVisits);
       showScene(friend.img, friend.name + " 来访", 1800);
-      setFace({
-        lipu: "shock",
-        duodong: "flat",
-        xiuzhenFan: "sad",
-        xiaoheBite: "shock",
-        friends: "flat"
-      }[friend.id] || "sad", 1600);
+      setRandomFace({
+        lipu: "bag",
+        duodong: "friends",
+        xiuzhenFan: "xiuzhen",
+        xiaoheBite: "xiaohe",
+        friends: "friends"
+      }[friend.id] || "friends", 1600);
       say(friend.line);
       playSound(friend.id === "xiaoheBite" ? "swoop" : "pat");
       change(friend.delta);
@@ -2466,7 +2538,7 @@
       mini = { score: 0, taps: 0, endsAt: Date.now() + duration, spawner: 0, closer: 0 };
       miniLayer.setAttribute("aria-hidden", "false");
       $("#miniSmall").textContent = "进行中";
-      setFace("shock", duration);
+      setRandomFace("grab", duration);
       say("清理无聊开始：直接点掉飘出来的烦人事，捡到萝卜币就算赚。");
       spawnBit();
       mini.spawner = setInterval(spawnBit, 690);
@@ -2499,7 +2571,7 @@
         bit.classList.add("pop");
         mini.score += item.score;
         mini.taps += 1;
-        setFace(item.kind === "good" ? "sad" : (state.gloom > 78 ? "cry" : "flat"), 650);
+        setRandomFace(item.kind === "good" ? "miniGood" : "miniBad", 650);
         change(item.delta);
         if (item.scene) showScene(item.scene, "田中暴打地球", 1300);
         if (item.unlock) unlock(item.unlock);
@@ -2636,6 +2708,12 @@
       setRealTask();
     }
 
+    function applyPreviewFace() {
+      const face = new URLSearchParams(location.search).get("face");
+      const allowed = ["accept", "annoyed", "wilt", "panic", "shock", "flat", "sleep", "angry", "cry"];
+      if (allowed.includes(face)) setFace(face, 60000);
+    }
+
     function wireEvents() {
       pet.addEventListener("pointerdown", onPetDown);
       pet.addEventListener("pointermove", onPetMove);
@@ -2691,6 +2769,7 @@
       renderStickers();
       renderShop();
       render();
+      applyPreviewFace();
       setInterval(updateClock, 1000 * 20);
       setInterval(timeTick, 1000 * 8);
       window.addEventListener("beforeunload", saveState);
